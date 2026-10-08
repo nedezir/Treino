@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Treino Hipertrofia</title>
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--card2:#273449;--tx:#f1f5f9;--mut:#94a3b8;--ac:#22c55e;--ac2:#16a34a;--warn:#f59e0b;--red:#ef4444;--bd:#334155}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:env(safe-area-inset-top,0px) 0 calc(90px + env(safe-area-inset-bottom,0px))}
+header{padding:20px 16px 8px}
+h1{font-size:22px;margin:0}
+.sub{color:var(--mut);font-size:14px;margin-top:2px}
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;gap:6px;overflow-x:auto;padding:10px 16px;border-bottom:1px solid var(--bd);scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:9px 14px;border-radius:999px;font-size:14px;font-weight:600}
+.tab.on{background:var(--ac);border-color:var(--ac);color:#06210f}
+main{padding:12px 16px}
+.wk{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:14px;padding:12px;margin-bottom:12px}
+.wk select{flex:1;background:var(--card2);color:var(--tx);border:1px solid var(--bd);border-radius:10px;padding:10px;font-size:16px}
+.phase{font-size:13px;color:var(--warn);margin:-4px 0 12px 2px}
+.day-h{font-size:18px;margin:6px 0 10px}
+.ex{background:var(--card);border-radius:16px;padding:14px;margin-bottom:12px;border:1px solid transparent}
+.ex.done{border-color:var(--ac2);opacity:.75}
+.ex-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.ex-n{font-weight:700;font-size:17px}
+.num{color:var(--mut);font-size:13px;margin-right:6px}
+.chk{width:30px;height:30px;flex:0 0 30px;border-radius:50%;border:2px solid var(--bd);background:none;color:#06210f;font-weight:900}
+.ex.done .chk{background:var(--ac);border-color:var(--ac)}
+.meta{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap}
+.pill{background:var(--card2);border-radius:8px;padding:5px 9px;font-size:13px}
+.pill b{color:var(--ac)}
+.tip{font-size:14px;color:var(--mut);margin:6px 0 10px}
+.btns{display:flex;gap:8px}
+.btn{flex:1;text-align:center;text-decoration:none;border:none;border-radius:10px;padding:11px 8px;font-size:14px;font-weight:700;color:#fff;background:#dc2626}
+.btn.t{background:var(--card2);border:1px solid var(--bd)}
+.log{margin-top:10px;display:flex;gap:8px}
+.log input{flex:1;min-width:0;background:var(--card2);border:1px solid var(--bd);color:var(--tx);border-radius:10px;padding:10px;font-size:16px}
+.hist{font-size:12px;color:var(--mut);margin-top:6px}
+.card{background:var(--card);border-radius:16px;padding:16px;margin-bottom:12px}
+.card h3{margin:0 0 8px;font-size:16px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat{background:var(--card2);border-radius:12px;padding:10px}
+.stat .v{font-size:20px;font-weight:800;color:var(--ac)}
+.stat .l{font-size:12px;color:var(--mut)}
+ul{padding-left:18px;margin:6px 0}li{margin:4px 0}
+.small{font-size:12px;color:var(--mut)}
+#timer{position:fixed;left:12px;right:12px;bottom:12px;z-index:10;background:#111827;border:1px solid var(--ac);border-radius:16px;padding:12px 14px;display:none;align-items:center;gap:12px;box-shadow:0 10px 30px #0008}
+#timer.on{display:flex}
+#tv{font-size:28px;font-weight:800;font-variant-numeric:tabular-nums;min-width:80px}
+#timer .x{margin-left:auto;display:flex;gap:6px}
+#timer button{background:var(--card2);color:var(--tx);border:1px solid var(--bd);border-radius:10px;padding:8px 10px;font-weight:700}
+.ex.tq{border-color:#7c3aed55}
+.tech{background:#2e1065;border-radius:10px;padding:8px 10px;font-size:13px;margin:8px 0 0}
+.tg{font-weight:800;font-size:11px;padding:2px 6px;border-radius:6px;background:#7c3aed;color:#fff;margin-right:4px}
+.tg.drop{background:#dc2626}.tg.rest{background:#0891b2}.tg.pausa{background:#ca8a04}
+.sug{background:#052e16;border:1px solid #14532d;border-radius:10px;padding:8px 10px;font-size:13px;margin:0 0 10px}
+.sug b{color:var(--ac)}
+table{width:100%;border-collapse:collapse;font-size:13px}td,th{border-bottom:1px solid var(--bd);padding:6px 4px;text-align:left;vertical-align:top}th{color:var(--mut);font-weight:600}
+.prog{height:6px;background:var(--card2);border-radius:9px;overflow:hidden;margin:4px 0 12px}
+.prog i{display:block;height:100%;background:var(--ac);width:0;transition:width .3s}
+</style>
+</head>
+<body>
+<header>
+  <h1>💪 Hipertrofia · 8 semanas</h1>
+  <div class="sub">43 anos · 1,75 m · 80,9 kg · 5x/semana</div>
+</header>
+<nav class="tabs" id="tabs"></nav>
+<main id="main"></main>
+<div id="timer"><div><div class="small">Descanso</div><div id="tv">0:00</div></div>
+  <div class="x"><button onclick="addT(-15)">−15</button><button onclick="addT(15)">+15</button><button onclick="stopT()">✕</button></div></div>
+
+<script>
+const V=q=>"https://www.youtube.com/results?search_query="+encodeURIComponent(q+" execução correta shorts");
+const D={
+"Segunda":{t:"Peito + Tríceps",ex:[
+["Supino reto",4,"6–10","2–3 min",150,"Escápulas retraídas, pés firmes, barra desce na linha do mamilo. Cotovelos ~45°."],
+["Supino inclinado com halteres",3,"8–12","2 min",120,"Banco 30–45°. Desça controlando até alongar o peito, sem bater os halteres."],
+["Chest press / máquina",3,"8–12","90 s",90,"Ajuste o banco para a pegada ficar na altura do meio do peito. Não trave os cotovelos."],
+["Crossover",3,"10–15","60–90 s",75,"Leve inclinação à frente, cotovelos levemente flexionados e fixos. Aperte no final."],
+["Tríceps pulley",3,"8–12","90 s",90,"Cotovelos colados ao corpo. Só o antebraço se move."],
+["Tríceps francês",3,"10–15","60–90 s",75,"Cotovelos apontados para cima, desça atrás da cabeça com controle."],
+["Crunch na polia alta",3,"10–15","60–90 s",75,"Ajoelhado, quadril fixo: enrole o tronco levando as costelas em direção à pelve, sem puxar com os braços."]]},
+"Terça":{t:"Quadríceps + Panturrilha",ex:[
+["Agachamento",4,"6–10","2–3 min",150,"Tronco firme, joelhos acompanham a ponta dos pés, desça até onde mantém a lombar neutra."],
+["Leg press",4,"8–12","2 min",120,"Lombar sempre encostada. Não trave os joelhos no topo."],
+["Cadeira extensora",3,"10–15","60–90 s",75,"Segure 1 s no topo, desça em 2–3 s."],
+["Afundo",3,"8–12","90 s",90,"Passo largo, joelho de trás desce quase ao chão, tronco ereto."],
+["Panturrilha em pé",4,"10–15","60–90 s",75,"Amplitude total: alongue embaixo, pause 1 s no topo."],
+["Panturrilha sentado",3,"12–20","60 s",60,"Movimento lento e completo, sem quicar."]]},
+"Quarta":{t:"Costas + Bíceps",ex:[
+["Puxada alta",4,"6–10","2 min",120,"Peito para cima, puxe a barra até o alto do peito levando os cotovelos para baixo."],
+["Remada máquina",3,"8–12","2 min",120,"Peito apoiado, puxe com os cotovelos e junte as escápulas."],
+["Remada unilateral",3,"8–12","90 s",90,"Costas retas, puxe o halter em direção ao quadril."],
+["Pulldown",3,"10–15","60–90 s",75,"Braços quase estendidos, leve a barra até as coxas usando o dorsal. (Pullover no cabo)"],
+["Rosca direta",3,"8–12","90 s",90,"Cotovelos fixos ao lado do corpo, sem balançar o tronco."],
+["Rosca martelo",3,"10–15","60–90 s",75,"Pegada neutra, suba e desça controlado."],
+["Encolhimento com halteres",3,"10–15","60–90 s",75,"Suba os ombros em direção às orelhas, pausa de 1 s no topo e desça controlado, sem girar os ombros."],
+["Abdominal na máquina",3,"12–15","60 s",60,"Expire ao contrair, mantenha o lombar apoiado e desça devagar sem soltar o peso."]]},
+"Quinta":{t:"Posterior + Glúteos",ex:[
+["Terra romeno",4,"6–10","2–3 min",150,"Joelhos levemente flexionados, empurre o quadril para trás, barra rente às pernas, coluna neutra."],
+["Mesa flexora",4,"8–12","90 s",90,"Quadril colado no banco, desça devagar."],
+["Cadeira flexora",3,"10–15","60–90 s",75,"Ajuste o encosto para o joelho alinhar com o eixo da máquina."],
+["Hip thrust",4,"8–12","2 min",120,"Queixo para dentro, suba até o quadril alinhar com o tronco, aperte o glúteo 1 s."],
+["Abdutora",3,"12–20","60 s",60,"Tronco levemente à frente para mais glúteo; controle a volta."],
+["Panturrilha",4,"12–20","60 s",60,"Amplitude completa, pausa no topo e embaixo."]]},
+"Sexta":{t:"Ombros + Braços",ex:[
+["Desenvolvimento com halteres",3,"6–10","2 min",120,"Sentado com apoio, halteres descem até a altura das orelhas, sem arquear a lombar."],
+["Elevação lateral",4,"10–15","60–90 s",75,"Suba até a altura dos ombros, cotovelo levemente à frente, sem impulso."],
+["Crucifixo inverso",3,"12–15","60–90 s",75,"Abra os braços focando o deltoide posterior, sem juntar demais as escápulas."],
+["Rosca direta",3,"8–12","90 s",90,"Cotovelos fixos, desça em 2–3 s."],
+["Rosca martelo",3,"10–12","60–90 s",75,"Pegada neutra, sem balançar."],
+["Tríceps testa",3,"8–12","90 s",90,"Barra W desce em direção à testa, cotovelos apontados para o teto."],
+["Tríceps corda",3,"10–15","60–90 s",75,"Abra a corda no final do movimento, cotovelos fixos."],
+["Crunch declinado com anilha",3,"10–15","60 s",60,"Anilha junto ao peito, suba enrolando a coluna e desça controlado, sem balançar."]]}
+};
+const PH={1:"Sem 1–2: RIR 2–3 — foco em técnica e amplitude.",2:"Sem 1–2: RIR 2–3 — foco em técnica e amplitude.",3:"Sem 3–5: RIR 1–2 — aumente reps, depois carga.",4:"Sem 3–5: RIR 1–2 — aumente reps, depois carga.",5:"Sem 3–5: RIR 1–2 — aumente reps, depois carga.",6:"Sem 6–7: principais 6–10 reps, isoladores 10–15, RIR 1–2.",7:"Sem 6–7: principais 6–10 reps, isoladores 10–15, RIR 1–2.",8:"Sem 8 — DELOAD: corte ~40–50% das séries, cargas moderadas."};
+// incremento de carga sugerido (kg) por exercício
+const INC={"Supino reto":2.5,"Supino inclinado com halteres":2,"Chest press / máquina":5,"Crossover":2.5,"Tríceps pulley":2.5,"Tríceps francês":2,"Agachamento":5,"Leg press":10,"Cadeira extensora":5,"Afundo":2,"Panturrilha em pé":5,"Panturrilha sentado":5,"Puxada alta":5,"Remada máquina":5,"Remada unilateral":2,"Pulldown":2.5,"Rosca direta":2,"Rosca martelo":1,"Terra romeno":5,"Mesa flexora":2.5,"Cadeira flexora":5,"Hip thrust":10,"Abdutora":5,"Panturrilha":5,"Desenvolvimento com halteres":2,"Crunch na polia alta":2.5,"Abdominal na máquina":5,"Crunch declinado com anilha":2.5,"Encolhimento com halteres":2,"Elevação lateral":1,"Crucifixo inverso":1,"Tríceps testa":2,"Tríceps corda":2.5};
+// técnicas por dia: [semanaDe, semanaAté, [índices], tipo]
+const TECH={
+"Segunda":[[3,7,[4,5],"biset"],[6,7,[2],"rest"],[6,7,[3],"drop"]],
+"Terça":[[3,7,[2,5],"biset"],[6,7,[1],"rest"],[6,7,[4],"drop"]],
+"Quarta":[[3,7,[4,5],"biset"],[6,7,[1],"rest"],[6,7,[3],"drop"]],
+"Quinta":[[3,7,[2,4],"biset"],[6,7,[1],"drop"],[3,7,[3],"pausa"]],
+"Sexta":[[3,7,[3,5],"biset"],[3,7,[4,6],"biset"],[6,7,[1],"drop"],[6,7,[2],"drop"]]};
+const TX={biset:"🔗 BI-SET",drop:"🔻 DROP-SET",rest:"⏸ REST-PAUSE",pausa:"⏱ PAUSA 2 s"};
+const TD={drop:"Na ÚLTIMA série: ao chegar perto da falha, reduza ~25% da carga e faça mais reps até RIR 0–1. Só 1 drop.",
+rest:"Na ÚLTIMA série: chegue a RIR 1, descanse 15 s, faça mais 2–4 reps, 15 s, mais 1–3 reps.",
+pausa:"Segure 2 s no topo de cada repetição (contração máxima). Use ~10% menos carga se precisar."};
+function techFor(day,i){const out=[];(TECH[day]||[]).forEach(t=>{if(S.wk<t[0]||S.wk>t[1])return;const p=t[2].indexOf(i);if(p<0)return;
+if(t[3]=="biset"){const o=t[2][1-p];const on=D[day].ex[o][0];
+out.push({type:"biset",txt:p==0?`Faça junto com <b>${on}</b> (nº ${o+1}): sem descanso entre os dois; descanse só depois do 2º.`:`2º do bi-set com <b>${on}</b> (nº ${o+1}). Descanse agora.`,first:p==0})}
+else out.push({type:t[3],txt:TD[t[3]]})});return out}
+function parse(v){if(!v)return null;v=v.replace(",",".");const m=v.match(/(\d+(?:\.\d+)?)/);if(!m)return null;const kg=+m[1];
+const rest=v.slice(m.index+m[0].length);const r=rest.match(/\d+(?:\s*\/\s*\d+)+|\d+/);const reps=r?r[0].split("/").map(x=>+x.trim()):[];return{kg,reps}}
+function sugest(e,L){const name=e[0],inc=INC[name]||2.5;const [lo,hi]=e[2].split("–").map(Number);
+if(S.wk==8){const p=parse(L[7]||L[6]);return p?`Deload: use ~${r5(p.kg*0.8)} kg, parando com RIR 3.`:"Deload: carga ~20% menor que a sem. 7, RIR 3."}
+if(S.wk==1)return"Semana 1: encontre uma carga em que termine a série com 2–3 reps sobrando.";
+const p=parse(L[S.wk-1]);if(!p)return`Anote a carga da semana ${S.wk-1} para ver a sugestão.`;
+if(!p.reps.length)return`Semana passada: ${p.kg} kg. Anote as reps (ex: ${p.kg} 10/9/8) para sugestão precisa.`;
+const all=p.reps.every(x=>x>=hi);
+if(all)return`🔼 Bateu ${hi} reps em tudo: suba para <b>${r5(p.kg+inc)} kg</b> e mire ${lo}–${lo+2} reps.`;
+const min=Math.min(...p.reps);
+if(min<lo)return`Abaixo da faixa (${min} reps): mantenha ou reduza para <b>${r5(p.kg-inc)} kg</b> e foque na técnica.`;
+return`➡️ Mantenha <b>${p.kg} kg</b> e tente +1 rep nas séries abaixo de ${hi}.`}
+function r5(x){return Math.round(x*2)/2}
+let S={};try{S=JSON.parse(localStorage.getItem("treino8")||"{}")}catch(e){}
+const save=()=>{try{localStorage.setItem("treino8",JSON.stringify(S))}catch(e){}};
+S.wk=S.wk||1;S.log=S.log||{};S.done=S.done||{};S.cd=S.cd||{};
+const days=Object.keys(D);
+const todayIdx=new Date().getDay()-1;
+let cur=S.tab||(days[todayIdx]||"Segunda");
+
+function tabs(){const all=[...days,"Perfil"];
+document.getElementById("tabs").innerHTML=all.map(d=>`<button class="tab ${d==cur?"on":""}" onclick="go('${d}')">${d=="Perfil"?"📋 Guia":d.slice(0,3)}</button>`).join("")}
+function go(d){cur=d;S.tab=d;save();render();scrollTo(0,0)}
+const key=(d,i)=>d+"|"+i;
+function render(){tabs();const m=document.getElementById("main");
+if(cur=="Perfil"){m.innerHTML=perfil();return}
+const d=D[cur];const dk=S.wk+"|"+cur;const done=S.done[dk]||[];
+const n=d.ex.length,c=done.length;
+m.innerHTML=`<div class="wk">📅<select onchange="S.wk=+this.value;save();render()">${[1,2,3,4,5,6,7,8].map(w=>`<option value="${w}" ${w==S.wk?"selected":""}>Semana ${w}</option>`).join("")}</select></div>
+<div class="phase">${PH[S.wk]}</div>
+<div class="day-h">${cur} · ${d.t} <span class="small">(${c}/${n})</span></div>
+<div class="prog"><i style="width:${c/n*100}%"></i></div>`+
+d.ex.map((e,i)=>{const k=key(cur,i);const L=S.log[k]||{};const isD=done.includes(i);
+const series=S.wk==8?Math.max(2,Math.round(e[1]*0.55))+" (deload)":e[1];
+const hist=Object.keys(L).filter(w=>L[w]&&w!=S.wk).sort((a,b)=>a-b).map(w=>`S${w}: ${L[w]}`).join(" · ");
+const tc=techFor(cur,i);const bsFirst=tc.some(t=>t.type=="biset"&&t.first);
+return `<div class="ex ${isD?"done":""} ${tc.length?"tq":""}">
+<div class="ex-top"><div class="ex-n"><span class="num">${i+1}</span>${e[0]}</div><button class="chk" onclick="tog(${i})">${isD?"✓":""}</button></div>
+${tc.map(t=>`<div class="tech"><span class="tg ${t.type}">${TX[t.type]}</span> ${t.txt}</div>`).join("")}
+<div class="meta"><span class="pill">Séries <b>${series}</b></span><span class="pill">Reps <b>${e[2]}</b></span><span class="pill">Desc. <b>${bsFirst?"0 → próximo":e[3]}</b></span></div>
+<div class="tip">✅ ${e[5]}</div>
+<div class="sug">${sugest(e,L)}</div>
+<div class="btns"><a class="btn" href="${V(e[0])}" target="_blank" rel="noopener">▶ Ver execução</a><button class="btn t" onclick="startT(${e[4]})">⏱ ${fmt(e[4])}</button></div>
+<div class="log"><input inputmode="text" placeholder="S${S.wk}: carga e reps (ex: 40 10/9/8)" value="${(L[S.wk]||"").replace(/"/g,"&quot;")}" onchange="lg('${k}',this.value);render()"></div>
+${hist?`<div class="hist">Histórico: ${hist}</div>`:""}
+</div>`}).join("")+cardio(cur)}
+const CARDIO={"Terça":1,"Quinta":1};
+const CMIN=w=>w<=2?25:w<=5?30:w<=7?35:20;
+function cardio(day){if(!CARDIO[day])return"";const k="c|"+S.wk+"|"+day;const v=S.cd[k]||{};const on=!!v.d;
+return `<div class="ex ${on?"done":""}" style="border-color:#0891b255"><div class="ex-top"><div class="ex-n"><span class="num">🚴</span>Cardio · bicicleta ou esteira</div><button class="chk" onclick="tgc('${k}')">${on?"✓":""}</button></div>
+<div class="meta"><span class="pill">Tempo <b>${CMIN(S.wk)} min</b></span><span class="pill">Ritmo <b>leve–moderado</b></span></div>
+<div class="tip">⏰ Faça em outro horário do dia, separado da musculação (manhã ou noite, com algumas horas de intervalo).</div>
+<div class="tip">✅ Esforço 5–6 de 10: dá para conversar em frases curtas. Na esteira, caminhada inclinada ou trote leve; na bike, cadência constante.</div>
+<div class="log"><input placeholder="Tempo e distância (ex: 30 min 8 km)" value="${(v.t||"").replace(/"/g,"&quot;")}" onchange="lgc('${k}',this.value)"></div></div>`}
+function tgc(k){S.cd[k]=S.cd[k]||{};S.cd[k].d=!S.cd[k].d;save();render()}
+function lgc(k,v){S.cd[k]=S.cd[k]||{};S.cd[k].t=v.trim();save()}
+function tog(i){const dk=S.wk+"|"+cur;const a=S.done[dk]=S.done[dk]||[];const p=a.indexOf(i);p<0?a.push(i):a.splice(p,1);save();render()}
+function lg(k,v){S.log[k]=S.log[k]||{};S.log[k][S.wk]=v.trim();save()}
+function fmt(s){return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
+let T=0,iv=null;
+function startT(s){T=s;document.getElementById("timer").classList.add("on");upd();clearInterval(iv);iv=setInterval(()=>{T--;upd();if(T<=0){clearInterval(iv);try{navigator.vibrate&&navigator.vibrate([300,150,300])}catch(e){}beep();setTimeout(stopT,2500)}},1000)}
+function addT(s){T=Math.max(0,T+s);upd()}
+function stopT(){clearInterval(iv);document.getElementById("timer").classList.remove("on")}
+function upd(){document.getElementById("tv").textContent=fmt(Math.max(0,T))}
+function beep(){try{const a=new(window.AudioContext||window.webkitAudioContext)();const o=a.createOscillator();o.frequency.value=880;o.connect(a.destination);o.start();o.stop(a.currentTime+.4)}catch(e){}}
+
+function perfil(){
+const kg=80.9,h=175,age=43;const bmr=Math.round(10*kg+6.25*h-5*age+5);const tdee=Math.round(bmr*1.55);
+return `<div class="card"><h3>Seus números (estimativas)</h3><div class="grid">
+<div class="stat"><div class="v">${(kg/1.75/1.75).toFixed(1)}</div><div class="l">IMC</div></div>
+<div class="stat"><div class="v">~${tdee}</div><div class="l">kcal manutenção</div></div>
+<div class="stat"><div class="v">~${tdee+250}–${tdee+350}</div><div class="l">kcal p/ ganho de massa</div></div>
+<div class="stat"><div class="v">130–175 g</div><div class="l">proteína/dia (1,6–2,2 g/kg)</div></div>
+</div><p class="small">Fórmula Mifflin-St Jeor × 1,55. Meta: ganhar ~0,25–0,4 kg/semana. Se subir mais rápido que isso, reduza ~150 kcal; se não subir em 2 semanas, aumente ~150 kcal.</p></div>
+<div class="card"><h3>📈 Progressão de carga (dupla progressão)</h3><ul>
+<li>Escolha uma carga dentro da faixa (ex.: 8–12). Toda semana tente <b>+1 rep</b> em alguma série.</li>
+<li>Quando fizer o <b>topo da faixa em todas as séries</b> com boa técnica → suba a carga e volte para o início da faixa.</li>
+<li>Anote no formato <b>carga reps/reps/reps</b> (ex.: <i>40 12/11/10</i>). O site compara com a semana anterior e mostra a sugestão em verde.</li>
+<li><b>RIR</b> = repetições que ainda sobrariam. RIR 2 = parar 2 reps antes da falha.</li></ul>
+<table><tr><th>Tipo</th><th>Aumento</th></tr>
+<tr><td>Supino / barra (superiores)</td><td>+2–2,5 kg</td></tr>
+<tr><td>Agachamento, terra romeno</td><td>+5 kg</td></tr>
+<tr><td>Leg press, hip thrust</td><td>+10 kg</td></tr>
+<tr><td>Halteres compostos</td><td>+2 kg por halter</td></tr>
+<tr><td>Elevação lateral, martelo, crucifixo inv.</td><td>+1 kg (ou só reps)</td></tr>
+<tr><td>Máquinas / polia</td><td>+1 placa (2,5–5 kg)</td></tr></table></div>
+<div class="card"><h3>⚡ Técnicas avançadas (aparecem sozinhas no treino)</h3>
+<table><tr><th>Semanas</th><th>O que entra</th></tr>
+<tr><td>1–2</td><td>Nada — só técnica e carga certa.</td></tr>
+<tr><td>3–7</td><td><span class="tg biset">BI-SET</span> em braços/acessórios: 2 exercícios seguidos sem descanso. Economiza tempo e aumenta o estímulo.</td></tr>
+<tr><td>6–7</td><td><span class="tg drop">DROP-SET</span> e <span class="tg rest">REST-PAUSE</span> só na <b>última série</b> de máquinas/isoladores.</td></tr>
+<tr><td>8</td><td>Deload: sem técnicas, menos séries, ~20% menos carga.</td></tr></table>
+<p class="small"><b>Bi-sets do plano:</b> Seg tríceps pulley + francês · Ter extensora + panturrilha sentado · Qua rosca direta + martelo · Qui flexora + abdutora · Sex rosca direta + tríceps testa e rosca martelo + tríceps corda.</p>
+<p class="small">⚠️ Nunca use drop-set/rest-pause em <b>supino reto, agachamento e terra romeno</b> — nesses a fadiga extrema aumenta o risco de lesão. Aos 43 anos, a recuperação vale mais que a intensidade: se as articulações reclamarem, tire as técnicas daquela semana.</p></div>
+<div class="card"><h3>Cuidados aos 43 anos</h3><ul>
+<li>Aquecimento de 5–10 min + 1–2 séries leves antes do 1º exercício de cada dia.</li>
+<li>Durma 7–8 h — é quando o músculo cresce.</li>
+<li>Dor articular (não muscular) = reduza carga ou troque o exercício.</li>
+<li>Faça check-up / avaliação médica antes de aumentar a intensidade, e se possível acompanhe com um educador físico e nutricionista.</li>
+<li>Creatina 3–5 g/dia é um dos suplementos com melhor evidência (confirme com seu médico).</li></ul></div>
+<div class="card"><h3>Semana</h3><ul>
+<li><b>Seg</b> Peito + Tríceps</li><li><b>Ter</b> Quadríceps + Panturrilha <span class="small">+ cardio</span></li><li><b>Qua</b> Costas + Bíceps</li><li><b>Qui</b> Posterior + Glúteos <span class="small">+ cardio</span></li><li><b>Sex</b> Ombros + Braços</li><li><b>Sáb/Dom</b> Descanso</li></ul>
+<button class="btn t" style="width:100%;margin-top:8px" onclick="if(confirm('Apagar todos os registros?')){S={wk:1,log:{},done:{}};save();render()}">Zerar registros</button></div>`}
+render();
+</script>
+</body>
+</html>
