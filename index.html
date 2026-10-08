@@ -44,6 +44,10 @@ main{padding:12px 16px}
 .btn.t{background:var(--card2);border:1px solid var(--bd)}
 .log{margin-top:10px;display:flex;gap:8px}
 .log input{flex:1;min-width:0;background:var(--card2);border:1px solid var(--bd);color:var(--tx);border-radius:10px;padding:10px;font-size:16px}
+.sets{display:grid;grid-template-columns:34px 1fr 1fr;gap:6px 8px;align-items:center;margin-top:10px}
+.sets .sh{font-size:12px;color:var(--mut);text-align:center}
+.sets .sn{font-weight:800;color:var(--ac);font-size:15px}
+.sets input{min-width:0;width:100%;background:var(--card2);border:1px solid var(--bd);color:var(--tx);border-radius:10px;padding:10px;font-size:16px;text-align:center}
 .hist{font-size:12px;color:var(--mut);margin-top:6px}
 .card{background:var(--card);border-radius:16px;padding:16px;margin-bottom:12px}
 .card h3{margin:0 0 8px;font-size:16px}
@@ -144,19 +148,22 @@ out.push({type:"biset",txt:p==0?`Faça junto com <b>${on}</b> (nº ${o+1}): sem 
 else out.push({type:t[3],txt:TD[t[3]]})});return out}
 function parse(v){if(!v)return null;v=v.replace(",",".");const m=v.match(/(\d+(?:\.\d+)?)/);if(!m)return null;const kg=+m[1];
 const rest=v.slice(m.index+m[0].length);const r=rest.match(/\d+(?:\s*\/\s*\d+)+|\d+/);const reps=r?r[0].split("/").map(x=>+x.trim()):[];return{kg,reps}}
-function sugest(e,L){const name=e[0],inc=INC[name]||2.5;const [lo,hi]=e[2].split("–").map(Number);
-if(S.wk==8){const p=parse(L[7]||L[6]);return p?`Deload: use ~${r5(p.kg*0.8)} kg, parando com RIR 3.`:"Deload: carga ~20% menor que a sem. 7, RIR 3."}
+const num=v=>{const n=parseFloat(String(v==null?"":v).replace(",","."));return isFinite(n)?n:null};
+const setsOf=(k,w)=>{const a=(S.sl[k]||{})[w]||[];return Array.from({length:4},(_,i)=>({c:(a[i]||{}).c||"",r:(a[i]||{}).r||""}))};
+function topOf(k,w){const ss=setsOf(k,w).map(s=>({c:num(s.c),r:num(s.r)})).filter(s=>s.c!==null);if(!ss.length)return null;
+const kg=Math.max(...ss.map(s=>s.c));const reps=ss.filter(s=>s.c===kg&&s.r!==null).map(s=>s.r);return{kg,reps}}
+function sugest(e,k){const name=e[0],inc=INC[name]||2.5;const [lo,hi]=e[2].split("–").map(Number);
+if(S.wk==8){const p=topOf(k,7)||topOf(k,6);return p?`Deload: use ~${r5(p.kg*0.8)} kg, parando com RIR 3.`:"Deload: carga ~20% menor que a sem. 7, RIR 3."}
 if(S.wk==1)return"Semana 1: encontre uma carga em que termine a série com 2–3 reps sobrando.";
-const p=parse(L[S.wk-1]);if(!p)return`Anote a carga da semana ${S.wk-1} para ver a sugestão.`;
-if(!p.reps.length)return`Semana passada: ${p.kg} kg. Anote as reps (ex: ${p.kg} 10/9/8) para sugestão precisa.`;
-const all=p.reps.every(x=>x>=hi);
-if(all)return`🔼 Bateu ${hi} reps em tudo: suba para <b>${r5(p.kg+inc)} kg</b> e mire ${lo}–${lo+2} reps.`;
+const p=topOf(k,S.wk-1);if(!p)return`Anote as cargas da semana ${S.wk-1} para ver a sugestão.`;
+if(!p.reps.length)return`Semana passada: ${p.kg} kg. Anote as reps dessa carga para a sugestão.`;
+if(p.reps.every(x=>x>=hi))return`🔼 Bateu ${hi} reps com ${p.kg} kg: suba para <b>${r5(p.kg+inc)} kg</b> e mire ${lo}–${lo+2} reps.`;
 const min=Math.min(...p.reps);
-if(min<lo)return`Abaixo da faixa (${min} reps): mantenha ou reduza para <b>${r5(p.kg-inc)} kg</b> e foque na técnica.`;
+if(min<lo)return`Abaixo da faixa (${min} reps com ${p.kg} kg): mantenha ou reduza para <b>${r5(p.kg-inc)} kg</b> e foque na técnica.`;
 return`➡️ Mantenha <b>${p.kg} kg</b> e tente +1 rep nas séries abaixo de ${hi}.`}
 function r5(x){return Math.round(x*2)/2}
 let S={};try{S=JSON.parse(localStorage.getItem("treino8")||"{}")}catch(e){}
-const norm=()=>{S.wk=S.wk||1;S.log=S.log||{};S.done=S.done||{};S.cd=S.cd||{};S.water=S.water||{};S.wgoal=S.wgoal||{}};
+const norm=()=>{S.sl=S.sl||{};S.wk=S.wk||1;S.log=S.log||{};S.done=S.done||{};S.cd=S.cd||{};S.water=S.water||{};S.wgoal=S.wgoal||{}};
 let dbDoc=null,saveT=null,dirty=false;
 const setSync=t=>{const e=document.getElementById("sync");if(e)e.textContent=t};
 function flush(){clearTimeout(saveT);saveT=setTimeout(()=>{dbDoc.set({s:JSON.stringify(S),t:Date.now()}).then(()=>{dirty=false;setSync("☁ salvo na sua conta")}).catch(e=>setSync("⚠ erro ao salvar ("+((e&&e.code)||"?")+")"))},400)}
@@ -211,17 +218,24 @@ ${water()}
 <div class="prog"><i style="width:${c/n*100}%"></i></div>`+
 d.ex.map((e,i)=>{const k=key(cur,i);const L=S.log[k]||{};const isD=done.includes(i);
 const series=S.wk==8?Math.max(2,Math.round(e[1]*0.55))+" (deload)":e[1];
-const hist=Object.keys(L).filter(w=>L[w]&&w!=S.wk).sort((a,b)=>a-b).map(w=>`S${w}: ${L[w]}`).join(" · ");
+const ws=new Set([...Object.keys(L),...Object.keys(S.sl[k]||{})]);
+const hist=[...ws].filter(w=>w!=S.wk).sort((a,b)=>a-b).map(w=>{const cur2=setsOf(k,w).filter(s=>s.c||s.r);
+if(cur2.length)return`Sem ${w}: `+cur2.map(s=>`${s.c||"?"}kg×${s.r||"?"}`).join(" · ");
+return L[w]?`Sem ${w}: ${L[w]}`:""}).filter(Boolean).join("<br>");
+const prev=setsOf(k,S.wk-1),mine=setsOf(k,S.wk);
+const grid=`<div class="sets"><div class="sh"></div><div class="sh">Carga (kg)</div><div class="sh">Reps</div>`+mine.map((s,i)=>`<div class="sn">S${i+1}</div>
+<input inputmode="decimal" placeholder="${prev[i].c?prev[i].c+" kg":"kg"}" value="${s.c}" onchange="setS('${k}',${i},'c',this.value)">
+<input inputmode="numeric" placeholder="${prev[i].r?prev[i].r:"reps"}" value="${s.r}" onchange="setS('${k}',${i},'r',this.value)">`).join("")+`</div>`;
 const tc=techFor(cur,i);const bsFirst=tc.some(t=>t.type=="biset"&&t.first);
 return `<div class="ex ${isD?"done":""} ${tc.length?"tq":""}">
 <div class="ex-top"><div class="ex-n"><span class="num">${i+1}</span>${e[0]}</div><button class="chk" onclick="tog(${i})">${isD?"✓":""}</button></div>
 ${tc.map(t=>`<div class="tech"><span class="tg ${t.type}">${TX[t.type]}</span> ${t.txt}</div>`).join("")}
 <div class="meta"><span class="pill">Séries <b>${series}</b></span><span class="pill">Reps <b>${e[2]}</b></span><span class="pill">Desc. <b>${bsFirst?"0 → próximo":e[3]}</b></span></div>
 <div class="tip">✅ ${e[5]}</div>
-<div class="sug">${sugest(e,L)}</div>
+<div class="sug">${sugest(e,k)}</div>
 <div class="btns"><a class="btn" href="${V(e[0])}" target="_blank" rel="noopener">▶ Ver execução</a><button class="btn t" onclick="startT(${e[4]})">⏱ ${fmt(e[4])}</button></div>
-<div class="log"><input inputmode="text" placeholder="S${S.wk}: carga e reps (ex: 40 10/9/8)" value="${(L[S.wk]||"").replace(/"/g,"&quot;")}" onchange="lg('${k}',this.value);render()"></div>
-${hist?`<div class="hist">Histórico: ${hist}</div>`:""}
+${grid}
+${hist?`<div class="hist"><b>Histórico</b><br>${hist}</div>`:""}
 </div>`}).join("")+cardio(cur)}
 const CARDIO={"Terça":1,"Quinta":1};
 const CMIN=w=>w<=2?25:w<=5?30:w<=7?35:20;
@@ -234,6 +248,7 @@ return `<div class="ex ${on?"done":""}" style="border-color:#0891b255"><div clas
 function tgc(k){S.cd[k]=S.cd[k]||{};S.cd[k].d=!S.cd[k].d;save();render()}
 function lgc(k,v){S.cd[k]=S.cd[k]||{};S.cd[k].t=v.trim();save()}
 function tog(i){const dk=S.wk+"|"+cur;const a=S.done[dk]=S.done[dk]||[];const p=a.indexOf(i);p<0?a.push(i):a.splice(p,1);save();render()}
+function setS(k,i,f,v){S.sl[k]=S.sl[k]||{};const a=S.sl[k][S.wk]=S.sl[k][S.wk]||[{},{},{},{}];a[i]=a[i]||{};a[i][f]=String(v).trim();save()}
 function lg(k,v){S.log[k]=S.log[k]||{};S.log[k][S.wk]=v.trim();save()}
 function fmt(s){return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
 let T=0,iv=null;
@@ -281,7 +296,7 @@ return `<div class="card"><h3>Seus números (estimativas)</h3><div class="grid">
 <li><b>Seg</b> Peito + Tríceps</li><li><b>Ter</b> Quadríceps + Panturrilha <span class="small">+ cardio</span></li><li><b>Qua</b> Costas + Bíceps</li><li><b>Qui</b> Posterior + Glúteos <span class="small">+ cardio</span></li><li><b>Sex</b> Ombros + Braços</li><li><b>Sáb/Dom</b> Descanso</li></ul>
 <div class="small" style="margin-top:10px">Seus registros ficam salvos só neste aparelho. Faça backup de vez em quando.</div>
 <div class="btns" style="margin-top:6px"><button class="btn t" onclick="exportData()">⬇ Exportar</button><label class="btn t" style="cursor:pointer">⬆ Importar<input type="file" accept="application/json,.json" style="display:none" onchange="importData(this)"></label></div>
-<button class="btn t" style="width:100%;margin-top:8px" onclick="if(confirm('Apagar todos os registros?')){S={wk:1,log:{},done:{},cd:{},water:{},wgoal:{}};save();render()}">Zerar registros</button></div>`}
+<button class="btn t" style="width:100%;margin-top:8px" onclick="if(confirm('Apagar todos os registros?')){S={wk:1,log:{},sl:{},done:{},cd:{},water:{},wgoal:{}};save();render()}">Zerar registros</button></div>`}
 render();
 </script>
 <script>if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
