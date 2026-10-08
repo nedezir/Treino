@@ -1,0 +1,19 @@
+TREINO HIPERTROFIA - APP INSTALAVEL (PWA)
+
+COMO COLOCAR NO AR (GitHub Pages, gratis, uma vez so)
+1. Crie uma conta em github.com (se ainda nao tiver).
+2. Clique em "New repository". Nome: treino. Deixe "Public". Crie.
+3. Clique em "uploading an existing file" e envie TODOS os arquivos desta pasta
+   (index.html, manifest.webmanifest, sw.js e os 4 icones .png). Clique em "Commit changes".
+4. Va em Settings > Pages. Em "Branch" escolha "main" e a pasta "/ (root)". Salve.
+5. Espere 1 a 2 minutos. O endereco aparece no topo: https://SEU-USUARIO.github.io/treino/
+
+COMO INSTALAR NO CELULAR
+- Android (Chrome): abra o endereco, toque nos tres pontinhos > "Instalar app" (ou "Adicionar a tela inicial").
+- iPhone (Safari): abra o endereco, toque em Compartilhar > "Adicionar a Tela de Inicio".
+
+IMPORTANTE
+- Os registros ficam salvos so no celular. Use Guia > Exportar de vez em quando e guarde o arquivo.
+  Para trocar de celular: Guia > Importar.
+- Para atualizar o treino depois: envie o novo index.html para o mesmo repositorio e, no arquivo
+  sw.js, troque "treino-v1" por "treino-v2" (v3, v4...). Abra o app 2 vezes para atualizar.
