@@ -178,8 +178,164 @@ const min=Math.min(...p.reps);
 if(min<lo)return`Abaixo da faixa (${min} reps com ${p.kg} kg): mantenha ou reduza para <b>${r5(p.kg-inc)} kg</b> e foque na técnica.`;
 return`➡️ Mantenha <b>${p.kg} kg</b> e tente +1 rep nas séries abaixo de ${hi}.`}
 function r5(x){return Math.round(x*2)/2}
-const VER="4";
+const VER="5";
 const DEF_H=["07:00","09:30","12:30","15:30","19:30","22:00"];
+const PLAN=[
+{id:"p1",n:"Café da manhã",h:"08:00",f:`Pão francês 1 un
+ou Tapioca de goma 3 colheres de sopa (15g)
+ou Rap10 integral 1 un
+ou Pão integral 2 fatias
+ou Pão de forma 2 fatias (21g)
+
+Queijo mussarela 1 fatia (13,5g)
+ou Queijo ricota 1 pedaço pequeno
+ou Queijo prato 0,5 fatia (20g)
+
+Ovo 2 un
+ou Guisado 2 colheres de sopa (60g)
+ou Frango em pedaços 2 colheres de sopa (60g)
+
+SUBSTITUIÇÃO 1
+Carnibol 35g
+Leite semidesnatado orgânico 1 xícara de chá (200ml)
+Aveia em flocos 1 colher de sopa
+ou Farinha de aveia 1 colher de sopa
+ou Granola 1 colher de arroz
+ou Linhaça 2 colheres de chá (5g)
+ou Chia 2 colheres de sopa
+ou Psyllium 15g
+ou Farelo de aveia 20g`},
+{id:"p2",n:"Lanche da manhã",h:"10:00",f:`FRUTA (1 opção)
+Maçã 1 un
+ou Ameixa 4 un
+ou Mamão formosa 3 (1/2 fatia pequena, 50g cada)
+ou Uva 15 un
+ou Banana prata 1 pequena
+ou Manga 1 un
+ou Bergamota 1 un
+ou Pera 1 un
+ou Melão 5 fatias médias (50g)
+ou Laranja 1 un
+ou Morango 40 un (5g)
+ou Melancia 1 fatia
+ou Abacaxi 10 fatias finas
+
+COMPLEMENTO (1 opção)
+Aveia em flocos 1 colher de sopa
+ou Granola 3 colheres de sobremesa
+ou Linhaça 3 colheres de chá
+ou Farinha de aveia 2 colheres de sobremesa
+ou Chia 1 colher de sopa
+ou Castanha de caju 5 un
+ou Amendoim 10 un
+ou Leite em pó 1 colher de sopa
+
+Observação (pesar a fruta):
+Banana 90g · Uva, manga, pera 120g · Maçã, ameixa, abacaxi, mamão, bergamota, laranja 150g · Melão, morango, melancia 250g`},
+{id:"p3",n:"Almoço",h:"12:00",f:`Vegetais à vontade (100g)
+
+Arroz tipo 1 cozido 8 colheres de sopa cheias (20g)
+ou Macarrão 1 pegador
+ou Batata-doce cozida 6 colheres de sopa
+ou Batata-inglesa cozida 8 colheres de sopa
+ou Mandioca cozida 5 colheres de sopa
+
+Feijão preto cozido 1 concha média cheia (140g)
+ou Lentilha cozida 1,5 colher de servir
+
+Carne bovina paleta sem gordura cozida 1,5 bife
+ou Frango inteiro cozido 2 sobrecoxas
+ou Peixe de água doce grelhado 2 filés
+ou Coração de frango grelhado 20 un
+ou Peito de frango sem pele grelhado 2 pedaços pequenos (90g)
+ou Guisado 4 colheres de sopa
+ou Porco bisteca grelhada 100g
+ou Carne de ovelha grelhada 150g
+
+Observação (pesos cozidos):
+Batatas 240g · Arroz e mandioca 160g · Massa 110g
+Proteínas: Peixe 240g · Peito de frango 180g · Carne bovina magra, ovelha magra e coração de frango 150g · Coxa/sobrecoxa e guisado 120g`},
+{id:"p4",n:"Lanche (15h)",h:"15:00",f:`FRUTA (1 opção)
+Maçã 1 un
+ou Ameixa 4 un
+ou Mamão formosa 3 (1/2 fatia pequena, 50g cada)
+ou Uva 15 un
+ou Banana prata 1 pequena
+ou Manga 1 un
+ou Bergamota 1 un
+ou Pera 1 un
+ou Melão 5 fatias médias (50g)
+ou Laranja 1 un
+ou Morango 40 un (5g)
+ou Melancia 1 fatia
+ou Abacaxi 10 fatias finas
+
+COMPLEMENTO (1 opção)
+Aveia em flocos 1 colher de sopa
+ou Farinha de aveia 2 colheres de sobremesa
+ou Granola 3 colheres de sobremesa
+ou Chia 1 colher de sopa
+ou Linhaça 3 colheres de chá
+
+Observação (pesar a fruta):
+Banana 90g · Uva, manga, pera 120g · Maçã, ameixa, abacaxi, mamão, bergamota, laranja 150g · Melão, morango, melancia 250g`},
+{id:"p5",n:"Lanche da tarde",h:"18:00",f:`Pão francês 1 un
+ou Tapioca de goma 3 colheres de sopa (15g)
+ou Rap10 integral 1 un
+ou Pão integral 2 fatias
+ou Pão de forma 2 fatias (21g)
+
+Queijo mussarela 1 fatia (13,5g)
+ou Queijo ricota 1 pedaço pequeno
+ou Queijo prato 0,5 fatia (20g)
+
+Ovo cozido (10 min) 2 un
+ou Guisado 60g
+ou Frango em pedaços cozido 3 colheres de sopa (70g)
+ou Carne bovina paleta sem gordura cozida 70g`},
+{id:"p6",n:"Jantar",h:"22:00",f:`Vegetais à vontade (100g)
+
+Arroz tipo 1 cozido 10 colheres de sopa cheias (20g)
+ou Macarrão 1,5 pegador
+ou Batata-doce cozida 7 colheres de sopa
+ou Batata-inglesa cozida 10 colheres de sopa
+ou Mandioca cozida 7 colheres de sopa
+
+Proteína (1 opção)
+Peixe de água doce grelhado 2 filés
+ou Coração de frango grelhado 20 un
+ou Peito de frango sem pele grelhado 2 pedaços pequenos (90g)
+ou Guisado 4 colheres de sopa
+ou Porco bisteca grelhada 100g
+ou Carne de ovelha grelhada 150g
+(a lista pode ter mais opções no Dietbox: confira com o plano)
+
+Observação (pesos cozidos):
+Batatas 300g · Arroz e mandioca 200g · Massa 165g
+Proteínas: Peixe 240g · Peito de frango 180g · Carne bovina magra, ovelha magra e coração de frango 150g · Coxa/sobrecoxa e guisado 120g
+
+SUBSTITUIÇÃO 1
+Pão francês 1 un
+ou Tapioca de goma 3 colheres de sopa (15g)
+ou Rap10 integral 1 un
+ou Pão integral 2 fatias
+ou Pão de forma 2 fatias (21g)
+
+Margarina com ou sem sal 2 pontas de faca
+ou Maionese 2,5 colheres de sobremesa (16g)
+ou Requeijão 4 pontas de faca
+ou Creme de ricota 1,5 colher de sopa
+
+Queijo mussarela 1 fatia (13,5g)
+ou Queijo ricota 1 pedaço pequeno
+ou Queijo prato 0,5 fatia (20g)
+
+Frango em pedaços 100g
+ou Coração de frango grelhado 125g
+ou Guisado 100g
+ou Carne bovina paleta sem gordura cozida 120g
+ou Ovo 3 un`}
+].map(m=>({...m,k:"",p:"",c:"",g:""}));
 const DEF_MEALS=["Café da manhã","Lanche da manhã","Almoço","Lanche da tarde","Jantar","Ceia"];
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const todayStr=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
@@ -192,7 +348,7 @@ function setFs(n){S.opt.fs=n;save();applyFs();render()}
 let S={};try{S=JSON.parse(localStorage.getItem("treino8")||"{}")}catch(e){}
 const norm=()=>{S.sl=S.sl||{};S.wk=S.wk||1;S.log=S.log||{};S.done=S.done||{};S.cd=S.cd||{};S.water=S.water||{};S.wgoal=S.wgoal||{};
 S.opt=Object.assign({sound:true,auto:true,fs:0},S.opt||{});S.meas=S.meas||[];S.swap=S.swap||{};S.dietDone=S.dietDone||{};
-S.diet=S.diet||{};S.diet.goal=S.diet.goal||{};S.diet.meals=S.diet.meals||DEF_MEALS.map((n,i)=>({id:"m"+i,n,h:DEF_H[i],f:"",k:"",p:"",c:"",g:""}))};
+S.diet=S.diet||{};S.diet.goal=S.diet.goal||{};S.diet.meals=S.diet.meals||JSON.parse(JSON.stringify(PLAN));if(!S.diet.v){if(S.diet.meals.every(m=>!m.f&&!m.k&&!m.p&&!m.c&&!m.g))S.diet.meals=JSON.parse(JSON.stringify(PLAN));S.meas=S.meas||[];if(!S.meas.some(x=>x.d==="2026-09-04"))S.meas.push({d:"2026-09-04",w:80.9,c:85});S.diet.v=5}};
 let dbDoc=null,saveT=null,dirty=false;
 const setSync=t=>{const e=document.getElementById("sync");if(e)e.textContent=t};
 function flush(){clearTimeout(saveT);saveT=setTimeout(()=>{dbDoc.set({s:JSON.stringify(S),t:Date.now()}).then(()=>{dirty=false;setSync("☁ salvo na sua conta")}).catch(e=>setSync("⚠ erro ao salvar ("+((e&&e.code)||"?")+")"))},400)}
@@ -336,10 +492,10 @@ function refreshTot(){const e=document.getElementById("dtot");if(e)e.innerHTML=d
 function dieta(){const dn=S.dietDone[todayStr()]||[],G=S.diet.goal;
 const meals=[...S.diet.meals].sort((a,b)=>(a.h||"99")<(b.h||"99")?-1:(a.h||"99")>(b.h||"99")?1:0);
 return `<div class="card"><h3>🎯 Meta diária</h3><div class="mac">${[["k","kcal"],["p","Prot. (g)"],["c","Carb. (g)"],["g","Gord. (g)"]].map(([f,l])=>`<div><div class="sh">${l}</div><input class="in" inputmode="numeric" value="${esc(G[f]||"")}" placeholder="–" onchange="setDG('${f}',this.value)"></div>`).join("")}</div>
-<div class="small" style="margin-top:8px">Preencha com o que a nutricionista passou. Quando você me mandar o plano do Dietbox, eu deixo tudo preenchido aqui.</div></div>
+<div class="small" style="margin-top:8px">Preencha com o que a nutricionista passou. O plano de sexta do Dietbox já está nas refeições (escolha uma opção de cada grupo). Calorias e macros ficam em branco porque o Dietbox não mostra.</div></div>
 <div class="card"><h3>Hoje (refeições marcadas)</h3><div id="dtot">${dietTotals()}</div></div>`
-+meals.map(m=>{const on=dn.includes(m.id);return `<div class="meal ${on?"done":""}"><div class="mtop"><input class="in" style="flex:1" value="${esc(m.n)}" onchange="setMeal('${m.id}','n',this.value)"><input class="in" type="time" style="flex:0 0 112px" value="${esc(m.h||"")}" onchange="setMeal('${m.id}','h',this.value)"><button class="chk" onclick="togMeal('${m.id}')">${on?"✓":""}</button></div>
-<textarea class="in" rows="3" placeholder="Alimentos e quantidades (ex.: 2 ovos, 1 pão integral, 1 fruta)" onchange="setMeal('${m.id}','f',this.value)">${esc(m.f||"")}</textarea>
++meals.map(m=>{const on=dn.includes(m.id);return `<div class="meal ${on?"done":""}"><div class="mtop"><input class="in" style="flex:1" value="${esc(m.n)}" onchange="setMeal('${m.id}','n',this.value)"><input class="in" type="time" style="flex:0 0 126px" value="${esc(m.h||"")}" onchange="setMeal('${m.id}','h',this.value)"><button class="chk" onclick="togMeal('${m.id}')">${on?"✓":""}</button></div>
+<textarea class="in" rows="${Math.min(24,Math.max(3,(m.f||"").split("\n").length))}" placeholder="Alimentos e quantidades (ex.: 2 ovos, 1 pão integral, 1 fruta)" onchange="setMeal('${m.id}','f',this.value)">${esc(m.f||"")}</textarea>
 <div class="mac" style="margin-top:6px">${[["k","kcal"],["p","P (g)"],["c","C (g)"],["g","G (g)"]].map(([f,l])=>`<div><div class="sh">${l}</div><input class="in" inputmode="decimal" value="${esc(m[f]||"")}" placeholder="–" onchange="setMeal('${m.id}','${f}',this.value)"></div>`).join("")}</div>
 <div style="text-align:right;margin-top:6px"><button class="tab" onclick="delMeal('${m.id}')">🗑 Apagar</button></div></div>`}).join("")
 +`<button class="btn t" style="width:100%" onclick="addMeal()">+ Adicionar refeição</button>`}
