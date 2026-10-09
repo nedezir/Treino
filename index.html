@@ -53,7 +53,7 @@ textarea.in{resize:vertical}
 .mac{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.mac .sh{font-size:12px;color:var(--mut);text-align:center;margin-bottom:2px}.mac .in{text-align:center;padding:10px 4px}
 .meal{background:var(--card);border-radius:16px;padding:12px;margin-bottom:10px;border:1px solid transparent}.meal.done{border-color:var(--ac2)}
 .mtop{display:flex;gap:8px;align-items:center;margin-bottom:8px}
-.grp{margin:10px 0}.gt{display:flex;justify-content:space-between;font-weight:700;margin-bottom:6px}.chips{display:flex;flex-wrap:wrap;gap:6px}.chip{border:1px solid var(--bd);background:var(--card2);color:var(--tx);border-radius:999px;padding:8px 12px;font-size:14px;text-align:left}.chip.on{background:var(--ac);border-color:var(--ac);color:#06210f;font-weight:700}.vt{display:flex;gap:6px;margin:10px 0}.vt .tab.on{background:var(--ac);color:#06210f}
+.grp{margin:10px 0}.gt{display:flex;justify-content:space-between;font-weight:700;margin-bottom:6px}.chips{display:flex;flex-wrap:wrap;gap:6px}.chip{border:1px solid var(--bd);background:var(--card2);color:var(--tx);border-radius:999px;padding:8px 12px;font-size:14px;text-align:left}.chip.last{border-style:dashed;border-color:var(--ac)}.chip.on{background:var(--ac);border-color:var(--ac);color:#06210f;font-weight:700}.vt{display:flex;gap:6px;margin:10px 0}.vt .tab.on{background:var(--ac);color:#06210f}
 .drow{display:flex;justify-content:space-between;font-size:14px}.drow b{color:var(--ac)}
 .opt{display:flex;gap:10px;align-items:center;margin:8px 0;font-size:15px}.opt input{width:22px;height:22px;flex:0 0 22px}
 .btn.sel{border-color:var(--ac);color:var(--ac)}
@@ -179,7 +179,7 @@ const min=Math.min(...p.reps);
 if(min<lo)return`Abaixo da faixa (${min} reps com ${p.kg} kg): mantenha ou reduza para <b>${r5(p.kg-inc)} kg</b> e foque na técnica.`;
 return`➡️ Mantenha <b>${p.kg} kg</b> e tente +1 rep nas séries abaixo de ${hi}.`}
 function r5(x){return Math.round(x*2)/2}
-const VER="8";
+const VER="9";
 const DEF_H=["07:00","09:30","12:30","15:30","19:30","22:00"];
 const FRUTA=["Maçã 1 un (150g)","Ameixa 4 un","Mamão 3 pedaços (50g cada)","Uva 15 un (120g)","Banana prata 1 pequena (90g)","Manga 1 un (120g)","Bergamota 1 un","Pera 1 un (120g)","Melão 5 fatias (50g)","Laranja 1 un","Morango 40 un (5g)","Melancia 1 fatia","Abacaxi 10 fatias finas"];
 const PAO=["Pão francês 1 un","Tapioca de goma 3 col. sopa","Rap10 integral 1 un","Pão integral 2 fatias","Pão de forma 2 fatias"];
@@ -211,7 +211,7 @@ function setFs(n){S.opt.fs=n;save();applyFs();render()}
 let S={};try{S=JSON.parse(localStorage.getItem("treino8")||"{}")}catch(e){}
 const norm=()=>{S.sl=S.sl||{};S.wk=S.wk||1;S.log=S.log||{};S.done=S.done||{};S.cd=S.cd||{};S.water=S.water||{};S.wgoal=S.wgoal||{};
 S.opt=Object.assign({sound:true,auto:true,fs:0},S.opt||{});S.meas=S.meas||[];S.swap=S.swap||{};S.dietDone=S.dietDone||{};
-S.diet=S.diet||{};S.diet.goal=S.diet.goal||{};S.eat=S.eat||{};S.eatx=S.eatx||{};S.bk0=S.bk0||Date.now();S.ref=S.ref||{};if(!S.opt.goal)S.opt.goal="cut";if((S.diet.v||0)<7){S.meas=S.meas||[];let q=S.meas.find(x=>x.d==="2026-09-04");if(!q){q={d:"2026-09-04",w:80.9,c:85};S.meas.push(q)}Object.assign(q,{a:91,q:103,f:18.85})}if((S.diet.v||0)<5){S.meas=S.meas||[];if(!S.meas.some(x=>x.d==="2026-09-04"))S.meas.push({d:"2026-09-04",w:80.9,c:85})}delete S.diet.meals;S.diet.v=7};
+S.diet=S.diet||{};S.diet.goal=S.diet.goal||{};S.eat=S.eat||{};S.eatx=S.eatx||{};S.bk0=S.bk0||Date.now();S.ref=S.ref||{};S.dlast=S.dlast||{};S.dlastv=S.dlastv||{};S.dfav=S.dfav||{};S.warm=S.warm||{};if(!S.opt.goal)S.opt.goal="cut";if((S.diet.v||0)<7){S.meas=S.meas||[];let q=S.meas.find(x=>x.d==="2026-09-04");if(!q){q={d:"2026-09-04",w:80.9,c:85};S.meas.push(q)}Object.assign(q,{a:91,q:103,f:18.85})}if((S.diet.v||0)<5){S.meas=S.meas||[];if(!S.meas.some(x=>x.d==="2026-09-04"))S.meas.push({d:"2026-09-04",w:80.9,c:85})}delete S.diet.meals;S.diet.v=7};
 let dbDoc=null,saveT=null,dirty=false;
 const setSync=t=>{const e=document.getElementById("sync");if(e)e.textContent=t};
 function flush(){clearTimeout(saveT);saveT=setTimeout(()=>{dbDoc.set({s:JSON.stringify(S),t:Date.now()}).then(()=>{dirty=false;setSync("☁ salvo na sua conta")}).catch(e=>setSync("⚠ erro ao salvar ("+((e&&e.code)||"?")+")"))},400)}
@@ -419,7 +419,18 @@ function togOpen(i){dopen[i]=!dopen[i];render()}
 function setVar(i,v){dvar[i]=v;render()}
 function pickO(mi,vi,gi,oi){const e=S.eat[dd()]=S.eat[dd()]||{},k=mi+"|"+vi+"|"+gi;
 Object.keys(e).forEach(x=>{const p=x.split("|").map(Number);if(p[0]===mi&&p[1]!==vi)delete e[x]});
-if(e[k]===oi)delete e[k];else e[k]=oi;save();render()}
+if(e[k]===oi)delete e[k];else{e[k]=oi;S.dlast[k]=oi;S.dlastv[mi]=vi}save();render()}
+function repLast(mi){const vi=S.dlastv[mi]!==undefined?S.dlastv[mi]:(dvar[mi]||0),V=DP[mi].v[vi],ne={};let n=0;
+V.g.forEach((G,gi)=>{const k=mi+"|"+vi+"|"+gi,v=S.dlast[k];if(v!==undefined&&v<G.o.length){ne[k]=v;n++}});
+if(!n){alert("Ainda não há uma escolha anterior desta refeição. Marque as opções uma vez.");return}
+const e=S.eat[dd()]=S.eat[dd()]||{};Object.keys(e).forEach(x=>{if(+x.split("|")[0]===mi)delete e[x]});Object.assign(e,ne);dvar[mi]=vi;save();render()}
+function saveFav(mi){const vi=dvar[mi]||0,e=S.eat[dd()]||{},p={};DP[mi].v[vi].g.forEach((_,gi)=>{const v=e[mi+"|"+vi+"|"+gi];if(v!==undefined)p[gi]=v});
+if(!Object.keys(p).length){alert("Marque as opções da refeição antes de salvar como favorita.");return}
+const a=S.dfav[mi]=S.dfav[mi]||[];if(a.length>=6){alert("Máximo de 6 favoritas por refeição. Apague uma antes.");return}
+let n=prompt("Nome da favorita:","Favorita "+(a.length+1));if(n===null)return;n=n.replace(/['"`\\<>&|]/g,"").trim().slice(0,30)||"Favorita "+(a.length+1);a.push({n,v:vi,p});save();render()}
+function applyFav(mi,q){const f=(S.dfav[mi]||[])[q];if(!f)return;const e=S.eat[dd()]=S.eat[dd()]||{};Object.keys(e).forEach(x=>{if(+x.split("|")[0]===mi)delete e[x]});dvar[mi]=f.v;
+Object.keys(f.p).forEach(gi=>{const G=DP[mi].v[f.v]&&DP[mi].v[f.v].g[+gi];if(G&&f.p[gi]<G.o.length)e[mi+"|"+f.v+"|"+gi]=f.p[gi]});save();render()}
+function delFav(mi,q){const a=S.dfav[mi]||[];if(a[q]&&confirm("Apagar a favorita “"+a[q].n+"”?")){a.splice(q,1);save();render()}}
 function eatAll(mi){const vi=dvar[mi]||0,e=S.eat[dd()]=S.eat[dd()]||{};Object.keys(e).forEach(x=>{if(+x.split("|")[0]===mi)delete e[x]});DP[mi].v[vi].g.forEach((_,gi)=>e[mi+"|"+vi+"|"+gi]=0);save();render()}
 function eatClear(mi){const e=S.eat[dd()]||{};Object.keys(e).forEach(x=>{if(+x.split("|")[0]===mi)delete e[x]});S.eatx[dd()]=(S.eatx[dd()]||[]).filter(x=>x.mi!==mi);save();render()}
 function openExtra(mi){const m=document.getElementById("modal");
@@ -431,10 +442,10 @@ function delExtra(i){(S.eatx[dd()]||[]).splice(i,1);save();render()}
 function dieta(){const G=S.diet.goal,d=dd(),isT=!ddate,e=S.eat[d]||{},ex=S.eatx[d]||[];
 const meals=DP.map((M,mi)=>{const vi=Math.min(dvar[mi]||0,M.v.length-1),V=M.v[vi],s=sumEat(mi),pl=planOf(mi),any=Object.keys(e).some(x=>+x.split("|")[0]===mi)||ex.some(x=>x.mi===mi),op=!!dopen[mi];
 let body="";if(op){body=(M.v.length>1?`<div class="vt">${M.v.map((v,q)=>`<button class="tab ${q===vi?"on":""}" onclick="setVar(${mi},${q})">${esc(v.t)}</button>`).join("")}</div>`:"")
-+V.g.map((G,gi)=>`<div class="grp"><div class="gt"><span>${esc(G.t)}</span><span class="small">≈ ${G.m[0]} kcal</span></div><div class="chips">${G.o.map((o,oi)=>`<button class="chip ${e[mi+"|"+vi+"|"+gi]===oi?"on":""}" onclick="pickO(${mi},${vi},${gi},${oi})">${esc(o)}</button>`).join("")}</div></div>`).join("")
++V.g.map((G,gi)=>`<div class="grp"><div class="gt"><span>${esc(G.t)}</span><span class="small">≈ ${G.m[0]} kcal</span></div><div class="chips">${G.o.map((o,oi)=>`<button class="chip ${e[mi+"|"+vi+"|"+gi]===oi?"on":(S.dlast[mi+"|"+vi+"|"+gi]===oi?"last":"")}" onclick="pickO(${mi},${vi},${gi},${oi})">${esc(o)}</button>`).join("")}</div></div>`).join("")
 +(V.note?`<div class="small" style="margin:8px 0">${esc(V.note)}</div>`:"")
 +ex.map((x,q)=>x.mi===mi?`<div class="drow" style="margin:6px 0"><span>➕ ${esc(x.n)}</span><span><b>${brn(x.k,0)}</b> kcal <button class="tab" onclick="delExtra(${q})">✕</button></span></div>`:"").join("")
-+`<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"><button class="tab" onclick="eatAll(${mi})">✓ Comi tudo (1ª opção)</button><button class="tab" onclick="openExtra(${mi})">+ Comi outra coisa</button><button class="tab" onclick="eatClear(${mi})">Limpar</button></div>`}
++`<div class="small" style="margin-top:6px">Contorno tracejado = o que você escolheu da última vez.</div>${(S.dfav[mi]||[]).map((f,q)=>`<div class="drow" style="margin:6px 0"><button class="tab" onclick="applyFav(${mi},${q})">⭐ ${esc(f.n)}</button><button class="tab" onclick="delFav(${mi},${q})">🗑</button></div>`).join("")}<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"><button class="tab" onclick="repLast(${mi})">↻ Repetir a última vez</button><button class="tab" onclick="saveFav(${mi})">⭐ Salvar favorita</button><button class="tab" onclick="eatAll(${mi})">✓ Comi tudo (1ª opção)</button><button class="tab" onclick="openExtra(${mi})">+ Comi outra coisa</button><button class="tab" onclick="eatClear(${mi})">Limpar</button></div>`}
 return `<div class="meal ${any?"done":""}"><div class="mtop" style="margin:0" onclick="togOpen(${mi})"><div style="flex:1"><b>${esc(M.n)}</b><div class="small">${esc(M.h)} · ${any?`<b style="color:var(--ac)">${brn(s.k,0)}</b> kcal comidas · `:""}plano ≈ ${Math.round(pl.k)} kcal</div></div><span style="font-size:18px">${any?"✅ ":""}${op?"▴":"▾"}</span></div>${body}</div>`}).join("");
 return `<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><button class="tab" onclick="dshift(-1)">‹</button><b>${isT?"Hoje · ":""}${fmtD(d)}</b><button class="tab" onclick="dshift(1)">›</button></div></div>
 <div class="card"><h3>Calorias e macros do dia</h3><div id="dtot">${dietTotals()}</div><div class="small">Toque numa refeição, depois na opção que você comeu. Valores estimados com base em tabelas de alimentos, não são o cálculo do Dietbox.</div></div>
@@ -474,7 +485,7 @@ m.innerHTML=`<div class="wk">📅<select onchange="S.wk=+this.value;save();rende
 <div class="phase">${PH[S.wk]}</div>
 ${water()}
 <div class="day-h">${cur} · ${d.t} <span class="small">(${c}/${n})</span></div>
-<div class="prog"><i style="width:${c/n*100}%"></i></div>`+
+<div class="prog"><i style="width:${c/n*100}%"></i></div>`+warm(cur)+
 d.ex.map((e0,i)=>{const e=exOf(cur,i),k=kEx(cur,i),sw=swapOf(cur,i);const L=S.log[k]||{};const isD=done.includes(i);
 const series=S.wk==8?Math.max(2,Math.round(e[1]*0.55))+" (deload)":e[1];
 const ws=new Set([...Object.keys(L),...Object.keys(S.sl[k]||{})]);
@@ -493,11 +504,23 @@ ${tc.map(t=>`<div class="tech"><span class="tg ${t.type}">${TX[t.type]}</span> $
 ${sw?`<div class="small">Substitui: ${esc(D[cur].ex[i][0])}</div>`:""}
 <div class="tip">✅ ${e[5]}</div>
 <div class="sug">${sugest(e,k)}</div>
+${stallTip(i)}
 ${pr?`<div class="small" style="margin:-4px 0 10px">🏆 Recorde: ${brn(pr.kg)} kg${pr.reps?" × "+pr.reps:""} (sem ${pr.wk})${pr.isNew?" · <b style=\"color:var(--ac)\">novo!</b>":""}</div>`:""}
 <div class="btns"><a class="btn" href="${V(e[0])}" target="_blank" rel="noopener">▶ Ver execução</a><button class="btn t" onclick="startT(${e[4]})">⏱ ${fmt(e[4])}</button><button class="btn t" style="flex:0 0 auto;padding:11px 14px" onclick="openSwap(${i})" aria-label="Trocar exercício">⇄</button><button class="btn t" style="flex:0 0 auto;padding:11px 14px" onclick="openMedia(${i})" aria-label="Foto ou vídeo da execução">📷</button></div>
 ${grid}
 ${hist?`<div class="hist"><b>Histórico</b><br>${hist}</div>`:""}
 </div>`}).join("")+cardio(cur)}
+function stallTip(i){if(S.wk===1||S.wk===8)return"";const pts=[];
+for(let w=1;w<S.wk&&w<=7;w++){const p=topOf(kEx(cur,i,w),w);if(p)pts.push({w,kg:p.kg,r:p.reps.length?Math.max(...p.reps):0})}
+if(pts.length<3)return"";const gt=(a,b)=>a.kg>b.kg||(a.kg===b.kg&&a.r>b.r);let pk=0;pts.forEach((p,q)=>{if(gt(p,pts[pk]))pk=q});
+const n=pts.length-1-pk;if(n<2)return"";
+const c=topOf(kEx(cur,i,S.wk),S.wk);if(c){const t={kg:c.kg,r:c.reps.length?Math.max(...c.reps):0};if(gt(t,pts[pk]))return""}
+const P=pts[pk];
+return `<div class="tip" style="border-color:var(--warn)">📉 <b>${n+1} semanas no mesmo ponto</b> (${brn(P.kg)} kg${P.r?" × "+P.r:""} desde a sem ${P.w}). Ideias: reduza o descanso em 15 s ou use pausa de 2 s na descida · baixe a carga ~10% (≈ ${brn(r5(P.kg*0.9))} kg) e suba de novo com reps limpas · troque a variação (botão ⇄) · confira sono e proteína.</div>`}
+const WU={Segunda:"Ombros e escápulas: 2×15 rotações leves com elástico (ou halter de 1–2 kg) e 10 flexões na parede",Terça:"Quadril e tornozelo: 10 agachamentos sem peso e 10 afundos alternados, devagar",Quarta:"Escápulas e coluna: 2×12 puxadas leves na polia e 10 rotações de tronco",Quinta:"Glúteos e posterior: 12 pontes de glúteo e 10 bom-dia sem peso",Sexta:"Ombros e braços: 2×15 rotações de ombro com elástico e círculos amplos com os braços"};
+function warm(day){const a=S.warm[S.wk+"|"+day]||[],it=["5–10 min de bicicleta ou esteira leve (suar de leve)",WU[day]||"Mobilidade das articulações do dia","1–2 séries leves do 1º exercício (~50% da carga) antes de começar"],c=it.filter((_,j)=>a[j]).length;
+return `<div class="card" style="${c===3?"border:1px solid var(--ac2)":""}"><h3>🔥 Aquecimento <span class="small">(${c}/3)</span></h3>${it.map((t,j)=>`<label class="opt"><input type="checkbox" ${a[j]?"checked":""} onchange="togW('${day}',${j},this.checked)"><span>${esc(t)}</span></label>`).join("")}<div class="small">5 a 10 minutos protegem articulações e melhoram o rendimento do primeiro exercício.</div></div>`}
+function togW(day,j,on){const k=S.wk+"|"+day,a=S.warm[k]=S.warm[k]||[0,0,0];a[j]=on?1:0;save();render()}
 const CARDIO={"Terça":1,"Quinta":1};
 const CMIN=w=>w<=2?25:w<=5?30:w<=7?35:20;
 function cardio(day){if(!CARDIO[day])return"";const k="c|"+S.wk+"|"+day;const v=S.cd[k]||{};const on=!!v.d;
