@@ -179,7 +179,7 @@ const min=Math.min(...p.reps);
 if(min<lo)return`Abaixo da faixa (${min} reps com ${p.kg} kg): mantenha ou reduza para <b>${r5(p.kg-inc)} kg</b> e foque na técnica.`;
 return`➡️ Mantenha <b>${p.kg} kg</b> e tente +1 rep nas séries abaixo de ${hi}.`}
 function r5(x){return Math.round(x*2)/2}
-const VER="9";
+const VER="10";
 const DEF_H=["07:00","09:30","12:30","15:30","19:30","22:00"];
 const FRUTA=["Maçã 1 un (150g)","Ameixa 4 un","Mamão 3 pedaços (50g cada)","Uva 15 un (120g)","Banana prata 1 pequena (90g)","Manga 1 un (120g)","Bergamota 1 un","Pera 1 un (120g)","Melão 5 fatias (50g)","Laranja 1 un","Morango 40 un (5g)","Melancia 1 fatia","Abacaxi 10 fatias finas"];
 const PAO=["Pão francês 1 un","Tapioca de goma 3 col. sopa","Rap10 integral 1 un","Pão integral 2 fatias","Pão de forma 2 fatias"];
@@ -211,7 +211,7 @@ function setFs(n){S.opt.fs=n;save();applyFs();render()}
 let S={};try{S=JSON.parse(localStorage.getItem("treino8")||"{}")}catch(e){}
 const norm=()=>{S.sl=S.sl||{};S.wk=S.wk||1;S.log=S.log||{};S.done=S.done||{};S.cd=S.cd||{};S.water=S.water||{};S.wgoal=S.wgoal||{};
 S.opt=Object.assign({sound:true,auto:true,fs:0},S.opt||{});S.meas=S.meas||[];S.swap=S.swap||{};S.dietDone=S.dietDone||{};
-S.diet=S.diet||{};S.diet.goal=S.diet.goal||{};S.eat=S.eat||{};S.eatx=S.eatx||{};S.bk0=S.bk0||Date.now();S.ref=S.ref||{};S.dlast=S.dlast||{};S.dlastv=S.dlastv||{};S.dfav=S.dfav||{};S.warm=S.warm||{};if(!S.opt.goal)S.opt.goal="cut";if((S.diet.v||0)<7){S.meas=S.meas||[];let q=S.meas.find(x=>x.d==="2026-09-04");if(!q){q={d:"2026-09-04",w:80.9,c:85};S.meas.push(q)}Object.assign(q,{a:91,q:103,f:18.85})}if((S.diet.v||0)<5){S.meas=S.meas||[];if(!S.meas.some(x=>x.d==="2026-09-04"))S.meas.push({d:"2026-09-04",w:80.9,c:85})}delete S.diet.meals;S.diet.v=7};
+S.diet=S.diet||{};S.diet.goal=S.diet.goal||{};S.eat=S.eat||{};S.eatx=S.eatx||{};S.bk0=S.bk0||Date.now();S.ref=S.ref||{};S.dlast=S.dlast||{};S.dlastv=S.dlastv||{};S.dfav=S.dfav||{};S.warm=S.warm||{};S.xtra=S.xtra||{};S.dn=S.dn||{};if(!S.opt.goal)S.opt.goal="cut";if((S.diet.v||0)<7){S.meas=S.meas||[];let q=S.meas.find(x=>x.d==="2026-09-04");if(!q){q={d:"2026-09-04",w:80.9,c:85};S.meas.push(q)}Object.assign(q,{a:91,q:103,f:18.85})}if((S.diet.v||0)<5){S.meas=S.meas||[];if(!S.meas.some(x=>x.d==="2026-09-04"))S.meas.push({d:"2026-09-04",w:80.9,c:85})}delete S.diet.meals;S.diet.v=7};
 let dbDoc=null,saveT=null,dirty=false;
 const setSync=t=>{const e=document.getElementById("sync");if(e)e.textContent=t};
 function flush(){clearTimeout(saveT);saveT=setTimeout(()=>{dbDoc.set({s:JSON.stringify(S),t:Date.now()}).then(()=>{dirty=false;setSync("☁ salvo na sua conta")}).catch(e=>setSync("⚠ erro ao salvar ("+((e&&e.code)||"?")+")"))},400)}
@@ -284,6 +284,28 @@ if(j===-2){delete S.swap[k]}else{let n;if(j===-1){n=prompt("Nome do exercício q
 n=String(n||"").replace(/['"`\\<>&|]/g,"").trim().slice(0,40);if(!n){closeM();return}S.swap[k]={n}}
 save();closeM();render()}
 
+/* ---------- extras e notas do treino ---------- */
+const MESES=0;
+function xNames(){const s=new Set(["Abdominal","Abdominal infra","Prancha","Elevação de pernas","Corrida / esteira"]);days.forEach(d=>D[d].ex.forEach(e=>s.add(e[0])));Object.keys(S.xtra).forEach(k=>S.xtra[k].forEach(x=>s.add(x.n)));return[...s]}
+function xLast(nm,day){let best=null;Object.keys(S.xtra).forEach(k=>{const [w,d]=k.split("|");if(+w===S.wk&&d===day)return;S.xtra[k].forEach(x=>{if(x.n.toLowerCase()!==nm.toLowerCase())return;const ss=(x.s||[]).filter(s=>s.c||s.r);if(!ss.length)return;if(!best||+w>best.w)best={w:+w,ss}})});
+return best?`Última vez (sem ${best.w}): `+best.ss.map(s=>`${s.c?s.c+"kg":"corpo"}×${s.r||"?"}`).join(" · "):""}
+function xtra(day){const k=S.wk+"|"+day,L=S.xtra[k]||[];
+return `<div class="card"><h3>➕ Exercícios extras</h3><div class="small" style="margin-bottom:8px">Fez algo a mais hoje? Anote aqui. A carga pode ficar em branco (peso do corpo). Entram no resumo e nos recordes.</div>`
++L.map((x,q)=>{const lt=xLast(x.n,day);return `<div class="ex" style="margin-bottom:10px"><div class="ex-top"><div class="ex-n">${esc(x.n)}</div><button class="tab" style="padding:4px 12px" onclick="delX('${day}',${q})" aria-label="Remover extra">🗑</button></div>${lt?`<div class="small" style="margin-bottom:6px">${esc(lt)}</div>`:""}
+<div class="sets"><div class="sh"></div><div class="sh">Carga (kg)</div><div class="sh">Reps</div>`+x.s.map((s,j)=>`<div class="sn">S${j+1}</div><input inputmode="decimal" placeholder="kg" value="${esc(s.c||"")}" onchange="setX('${day}',${q},${j},'c',this.value)"><input inputmode="numeric" placeholder="reps" value="${esc(s.r||"")}" onchange="setX('${day}',${q},${j},'r',this.value)">`).join("")+`</div>
+<div class="btns" style="margin-top:8px"><button class="btn t" onclick="addXS('${day}',${q},1)">+ série</button>${x.s.length>1?`<button class="btn t" onclick="addXS('${day}',${q},-1)">− série</button>`:""}</div></div>`}).join("")
++`<div style="display:flex;gap:8px"><input class="in" id="xn" list="xl" placeholder="Nome do exercício (ex.: abdominal)" style="flex:1" maxlength="40"><button class="btn" style="flex:0 0 auto" onclick="addX('${day}')">Adicionar</button></div><datalist id="xl">${xNames().map(n=>`<option value="${esc(n)}">`).join("")}</datalist></div>`}
+function addX(day){const el=document.getElementById("xn"),n=(el.value||"").replace(/['"`\\<>&|]/g,"").trim().slice(0,40);if(!n){alert("Digite o nome do exercício.");return}
+const k=S.wk+"|"+day;(S.xtra[k]=S.xtra[k]||[]).push({n,s:[{c:"",r:""},{c:"",r:""},{c:"",r:""}]});save();render()}
+function setX(day,q,j,f,v){const x=(S.xtra[S.wk+"|"+day]||[])[q];if(!x)return;const s=x.s[j],old=s[f]||"";s[f]=String(v).trim();save();if(f==="r"&&!old&&s[f]&&S.opt.auto)startT(60)}
+function addXS(day,q,n){const x=(S.xtra[S.wk+"|"+day]||[])[q];if(!x)return;if(n>0){if(x.s.length>=8)return;x.s.push({c:"",r:""})}else if(x.s.length>1)x.s.pop();save();render()}
+function delX(day,q){const k=S.wk+"|"+day,x=(S.xtra[k]||[])[q];if(x&&confirm("Remover “"+x.n+"” deste dia?")){S.xtra[k].splice(q,1);if(!S.xtra[k].length)delete S.xtra[k];save();render()}}
+function dnote(day){const k=S.wk+"|"+day,v=S.dn[k]||{e:0,t:""},E=["😫","😕","😐","🙂","💪"];
+return `<div class="card"><h3>📝 Como foi o treino?</h3><div class="small" style="margin-bottom:6px">Energia e disposição de hoje</div><div class="btns">${E.map((m,i)=>`<button class="btn t ${v.e===i+1?"sel":""}" style="padding:10px 0;font-size:20px" onclick="setDN('${day}','e',${i+1})" aria-label="Energia ${i+1} de 5">${m}</button>`).join("")}</div>
+<textarea class="in" rows="3" style="margin-top:8px" placeholder="Observações (ex.: dormi mal, ombro incomodando, treino rápido)" onchange="setDN('${day}','t',this.value)">${esc(v.t||"")}</textarea></div>`}
+function setDN(day,f,val){const k=S.wk+"|"+day,o=S.dn[k]=S.dn[k]||{e:0,t:""};if(f==="e")o.e=o.e===val?0:val;else o.t=String(val).replace(/[<>]/g,"").slice(0,300);if(!o.e&&!o.t)delete S.dn[k];save();if(f==="e")render()}
+function notasSemana(){const wk=S.wk,E=["😫","😕","😐","🙂","💪"],r=[];[...days,"Sábado","Domingo"].forEach(d=>{const v=S.dn[wk+"|"+d];if(v)r.push(`<tr><td><b>${d.slice(0,3)}</b></td><td>${v.e?E[v.e-1]:""}</td><td class="small">${esc(v.t||"")}</td></tr>`)});
+return r.length?`<div class="card"><h3>📝 Notas da semana ${wk}</h3><table>${r.join("")}</table></div>`:""}
 /* ---------- fotos e vídeos ---------- */
 let mdb=null,mex="",mtip="",murls=[],msel=[],mrc="";
 function mOpen(){return new Promise((res,rej)=>{if(mdb)return res(mdb);const r=indexedDB.open("treino-media",1);r.onupgradeneeded=()=>{r.result.createObjectStore("m",{keyPath:"id"}).createIndex("ex","ex")};r.onsuccess=()=>{mdb=r.result;res(mdb)};r.onerror=()=>rej(r.error)})}
@@ -331,17 +353,19 @@ if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();awai
 /* ---------- recordes ---------- */
 function records(){const per={};
 Object.keys(S.sl).forEach(k=>{const nm=nameOfKey(k);Object.keys(S.sl[k]).forEach(w=>{(S.sl[k][w]||[]).forEach(s=>{const c=num(s.c),r=num(s.r);if(c===null||c<=0)return;const o=per[nm]=per[nm]||{};const b=o[w];if(!b||c>b.c||(c===b.c&&(r||0)>(b.r||0)))o[w]={c,r}})})});
+Object.keys(S.xtra).forEach(k=>{const w=k.split("|")[0];S.xtra[k].forEach(x=>(x.s||[]).forEach(s=>{const c=num(s.c),r=num(s.r);if(c===null||c<=0)return;const o=per[x.n]=per[x.n]||{};const b=o[w];if(!b||c>b.c||(c===b.c&&(r||0)>(b.r||0)))o[w]={c,r}}))});
 return Object.keys(per).map(nm=>{const ws=Object.keys(per[nm]).map(Number).sort((a,b)=>a-b);let best=null;ws.forEach(w=>{const x=per[nm][w];if(!best||x.c>best.c)best={c:x.c,r:x.r,w}});
 return{nm,kg:best.c,reps:best.r,wk:best.w,isNew:best.w===S.wk&&ws.length>1}}).sort((a,b)=>(b.isNew-a.isNew)||a.nm.localeCompare(b.nm))}
 
 /* ---------- resumo da semana ---------- */
-function volWk(w){let v=0;days.forEach(d=>D[d].ex.forEach((_,i)=>setsOf(kEx(d,i,w),w).forEach(s=>{const c=num(s.c),r=num(s.r);if(c!==null&&r!==null)v+=c*r})));return v}
+function volWk(w){let v=0;days.forEach(d=>D[d].ex.forEach((_,i)=>setsOf(kEx(d,i,w),w).forEach(s=>{const c=num(s.c),r=num(s.r);if(c!==null&&r!==null)v+=c*r})));Object.keys(S.xtra).forEach(k=>{if(+k.split("|")[0]===+w)S.xtra[k].forEach(x=>x.s.forEach(s=>{const c=num(s.c),r=num(s.r);if(c!==null&&r!==null)v+=c*r}))});return v}
 function resumo(){const wk=S.wk;let tEx=0,tDone=0,tSets=0,tVol=0,tCard=0;
 const rows=days.map(d=>{const ex=D[d].ex,done=(S.done[wk+"|"+d]||[]).length;let sets=0,vol=0;
 ex.forEach((_,i)=>{setsOf(kEx(d,i,wk),wk).forEach(s=>{const c=num(s.c),r=num(s.r);if(c!==null||r!==null)sets++;if(c!==null&&r!==null)vol+=c*r})});
+(S.xtra[wk+"|"+d]||[]).forEach(x=>x.s.forEach(s=>{const c=num(s.c),r=num(s.r);if(c!==null||r!==null)sets++;if(c!==null&&r!==null)vol+=c*r}));
 const card=CARDIO[d]?((S.cd["c|"+wk+"|"+d]||{}).d?1:0):null;const w=S.water[wk+"|"+d]||0;
 tEx+=ex.length;tDone+=done;tSets+=sets;tVol+=vol;if(card)tCard+=card;
-return `<tr><td><b>${d.slice(0,3)}</b></td><td>${done}/${ex.length}</td><td>${sets}</td><td>${brn(vol,0)}</td><td>${card===null?"":card?"✓":"–"}</td><td>${w?brn(w/1000,1)+" L":"–"}</td></tr>`}).join("");
+return `<tr><td><b>${d.slice(0,3)}</b></td><td>${done}/${ex.length}</td><td>${sets}</td><td>${brn(vol,0)}</td><td>${card===null?"":card?"✓":"–"}</td><td>${w?brn(w/1000,1)+" L":"–"}</td></tr>`}).join("")+["Sábado","Domingo"].map(d=>{const L=S.xtra[wk+"|"+d]||[];if(!L.length)return"";let sets=0,vol=0;L.forEach(x=>x.s.forEach(s=>{const c=num(s.c),r=num(s.r);if(c!==null||r!==null)sets++;if(c!==null&&r!==null)vol+=c*r}));tSets+=sets;tVol+=vol;return `<tr><td><b>${d.slice(0,3)}</b></td><td>–</td><td>${sets}</td><td>${brn(vol,0)}</td><td></td><td>${(S.water[wk+"|"+d]||0)?brn(S.water[wk+"|"+d]/1000,1)+" L":"–"}</td></tr>`}).join("");
 const pv=wk>1?volWk(wk-1):0;const cmp=pv>0&&tVol>0?`${tVol>=pv?"+":"−"}${brn(Math.abs(tVol-pv)/pv*100,0)}% de volume em relação à semana ${wk-1}`:"";
 const rec=records();
 return `<div class="wk">📅<select onchange="S.wk=+this.value;save();render()">${[1,2,3,4,5,6,7,8].map(w=>`<option value="${w}" ${w==S.wk?"selected":""}>Semana ${w}</option>`).join("")}</select></div>
@@ -353,6 +377,7 @@ return `<div class="wk">📅<select onchange="S.wk=+this.value;save();render()">
 ${cmp?`<p class="small">${cmp}.</p>`:""}
 <table style="margin-top:8px"><tr><th>Dia</th><th>Exerc.</th><th>Séries</th><th>Volume</th><th>🚴</th><th>💧</th></tr>${rows}</table></div>
 ${resumoDieta()}
+${notasSemana()}
 <div class="card"><h3>Recordes de carga</h3>${rec.length?`<table><tr><th>Exercício</th><th>Recorde</th><th>Sem.</th></tr>`+rec.map(r=>`<tr><td>${r.isNew?"🏆 ":""}${esc(r.nm)}</td><td>${brn(r.kg)} kg${r.reps?" × "+r.reps:""}</td><td>${r.wk}</td></tr>`).join("")+`</table><p class="small">🏆 = recorde batido nesta semana.</p>`:`<p class="small">Anote cargas nas séries para ver seus recordes aqui.</p>`}</div>`}
 
 
@@ -509,7 +534,7 @@ ${pr?`<div class="small" style="margin:-4px 0 10px">🏆 Recorde: ${brn(pr.kg)} 
 <div class="btns"><a class="btn" href="${V(e[0])}" target="_blank" rel="noopener">▶ Ver execução</a><button class="btn t" onclick="startT(${e[4]})">⏱ ${fmt(e[4])}</button><button class="btn t" style="flex:0 0 auto;padding:11px 14px" onclick="openSwap(${i})" aria-label="Trocar exercício">⇄</button><button class="btn t" style="flex:0 0 auto;padding:11px 14px" onclick="openMedia(${i})" aria-label="Foto ou vídeo da execução">📷</button></div>
 ${grid}
 ${hist?`<div class="hist"><b>Histórico</b><br>${hist}</div>`:""}
-</div>`}).join("")+cardio(cur)}
+</div>`}).join("")+cardio(cur)+xtra(cur)+dnote(cur)}
 function stallTip(i){if(S.wk===1||S.wk===8)return"";const pts=[];
 for(let w=1;w<S.wk&&w<=7;w++){const p=topOf(kEx(cur,i,w),w);if(p)pts.push({w,kg:p.kg,r:p.reps.length?Math.max(...p.reps):0})}
 if(pts.length<3)return"";const gt=(a,b)=>a.kg>b.kg||(a.kg===b.kg&&a.r>b.r);let pk=0;pts.forEach((p,q)=>{if(gt(p,pts[pk]))pk=q});
@@ -574,8 +599,9 @@ o+=`<div class="wk">📅<select onchange="S.wk=+this.value;save();render()">${[1
 if(day){const n=D[day].ex.length,c=(S.done[wk+"|"+day]||[]).length;
 o+=`<div class="drow"><span>🏋️ ${esc(D[day].t)}</span><span><b>${c}/${n}</b> exercícios</span></div><div class="prog" style="margin:4px 0 10px"><i style="width:${c/n*100}%"></i></div><button class="btn" style="width:100%" onclick="go('${day}')">Abrir treino de ${day}</button>`;
 if(CARDIO[day]){const cd=(S.cd["c|"+wk+"|"+day]||{}).d;o+=`<div class="drow" style="margin-top:12px"><span>🚴 Cardio de ${CMIN(wk)} min (outro horário)</span><b>${cd?"✓ feito":"pendente"}</b></div>`}}
-else o+=`<p class="small">Sem treino de musculação hoje. Descanse, caminhe e capriche na comida e no sono.</p>`;
+else o+=`<p class="small">Sem treino de musculação hoje. Descanse, caminhe e capriche na comida e no sono. Se treinar, anote abaixo.</p>`;
 o+=`</div>`;
+if(!day)o+=xtra(wd)+dnote(wd);
 const G=(S.wgoal||{})[wd]||3000,v=(S.water||{})[wk+"|"+wd]||0,pc=Math.min(100,Math.round(v/G*100));
 o+=`<div class="card" style="border:1px solid #0ea5e955"><h3>💧 Água</h3><div style="display:flex;align-items:baseline;gap:8px"><span style="font-size:26px;font-weight:800;color:#38bdf8">${fl(v)} L</span><span class="small">meta ${fl(G)} L${v>=G?" ✓ batida!":""}</span></div><div class="prog" style="margin:8px 0"><i style="width:${pc}%;background:#38bdf8"></i></div><div class="btns"><button class="btn t" onclick="addWd('${wd}',250)">+250 ml</button><button class="btn t" onclick="addWd('${wd}',500)">+500 ml</button><button class="btn t" onclick="addWd('${wd}',-250)">−250</button></div></div>`;
 const t=sumEat(null,todayStr()),pl=planAll(),nm=Object.keys(S.eat[todayStr()]||{}).map(x=>+x.split("|")[0]),nref=new Set([...nm,...(S.eatx[todayStr()]||[]).map(x=>x.mi)]).size;
