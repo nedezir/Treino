@@ -179,7 +179,7 @@ const min=Math.min(...p.reps);
 if(min<lo)return`Abaixo da faixa (${min} reps com ${p.kg} kg): mantenha ou reduza para <b>${r5(p.kg-inc)} kg</b> e foque na técnica.`;
 return`➡️ Mantenha <b>${p.kg} kg</b> e tente +1 rep nas séries abaixo de ${hi}.`}
 function r5(x){return Math.round(x*2)/2}
-const VER="10";
+const VER="12";
 const DEF_H=["07:00","09:30","12:30","15:30","19:30","22:00"];
 const FRUTA=["Maçã 1 un (150g)","Ameixa 4 un","Mamão 3 pedaços (50g cada)","Uva 15 un (120g)","Banana prata 1 pequena (90g)","Manga 1 un (120g)","Bergamota 1 un","Pera 1 un (120g)","Melão 5 fatias (50g)","Laranja 1 un","Morango 40 un (5g)","Melancia 1 fatia","Abacaxi 10 fatias finas"];
 const PAO=["Pão francês 1 un","Tapioca de goma 3 col. sopa","Rap10 integral 1 un","Pão integral 2 fatias","Pão de forma 2 fatias"];
@@ -211,7 +211,7 @@ function setFs(n){S.opt.fs=n;save();applyFs();render()}
 let S={};try{S=JSON.parse(localStorage.getItem("treino8")||"{}")}catch(e){}
 const norm=()=>{S.sl=S.sl||{};S.wk=S.wk||1;S.log=S.log||{};S.done=S.done||{};S.cd=S.cd||{};S.water=S.water||{};S.wgoal=S.wgoal||{};
 S.opt=Object.assign({sound:true,auto:true,fs:0},S.opt||{});S.meas=S.meas||[];S.swap=S.swap||{};S.dietDone=S.dietDone||{};
-S.diet=S.diet||{};S.diet.goal=S.diet.goal||{};S.eat=S.eat||{};S.eatx=S.eatx||{};S.bk0=S.bk0||Date.now();S.ref=S.ref||{};S.dlast=S.dlast||{};S.dlastv=S.dlastv||{};S.dfav=S.dfav||{};S.warm=S.warm||{};S.xtra=S.xtra||{};S.dn=S.dn||{};if(!S.opt.goal)S.opt.goal="cut";if((S.diet.v||0)<7){S.meas=S.meas||[];let q=S.meas.find(x=>x.d==="2026-09-04");if(!q){q={d:"2026-09-04",w:80.9,c:85};S.meas.push(q)}Object.assign(q,{a:91,q:103,f:18.85})}if((S.diet.v||0)<5){S.meas=S.meas||[];if(!S.meas.some(x=>x.d==="2026-09-04"))S.meas.push({d:"2026-09-04",w:80.9,c:85})}delete S.diet.meals;S.diet.v=7};
+S.diet=S.diet||{};S.diet.goal=S.diet.goal||{};S.eat=S.eat||{};S.eatx=S.eatx||{};S.bk0=S.bk0||Date.now();S.ref=S.ref||{};S.dlast=S.dlast||{};S.dlastv=S.dlastv||{};S.dfav=S.dfav||{};S.warm=S.warm||{};S.xtra=S.xtra||{};S.dn=S.dn||{};S.fq=S.fq||{};S.frec=S.frec||[];S.meas=S.meas||[];if(!S.aval){S.aval=[{d:"2026-09-04",w:80.9,f:18.85,gk:15.25,lm:65.65,c:85,a:91,q:103,k:{abd:30,tri:10,sup:10,axi:20,sub:18.5,tor:14,cox:16}},{d:"2026-10-15",w:81.7,f:19.72,gk:16.11,lm:65.59,c:85,a:91,q:103.5,k:{abd:30,tri:10.5,sup:10.5,axi:20,sub:22,tor:15,cox:17}}];if(!S.meas.some(x=>x.d==="2026-10-15"))S.meas.push({d:"2026-10-15",w:81.7,c:85,a:91,q:103.5,f:19.72});S.meas.sort((a,b)=>a.d<b.d?-1:1)}if(!S.opt.goal)S.opt.goal="cut";if((S.diet.v||0)<7){S.meas=S.meas||[];let q=S.meas.find(x=>x.d==="2026-09-04");if(!q){q={d:"2026-09-04",w:80.9,c:85};S.meas.push(q)}Object.assign(q,{a:91,q:103,f:18.85})}if((S.diet.v||0)<5){S.meas=S.meas||[];if(!S.meas.some(x=>x.d==="2026-09-04"))S.meas.push({d:"2026-09-04",w:80.9,c:85})}delete S.diet.meals;S.diet.v=7};
 let dbDoc=null,saveT=null,dirty=false;
 const setSync=t=>{const e=document.getElementById("sync");if(e)e.textContent=t};
 function flush(){clearTimeout(saveT);saveT=setTimeout(()=>{dbDoc.set({s:JSON.stringify(S),t:Date.now()}).then(()=>{dirty=false;setSync("☁ salvo na sua conta")}).catch(e=>setSync("⚠ erro ao salvar ("+((e&&e.code)||"?")+")"))},400)}
@@ -306,6 +306,59 @@ return `<div class="card"><h3>📝 Como foi o treino?</h3><div class="small" sty
 function setDN(day,f,val){const k=S.wk+"|"+day,o=S.dn[k]=S.dn[k]||{e:0,t:""};if(f==="e")o.e=o.e===val?0:val;else o.t=String(val).replace(/[<>]/g,"").slice(0,300);if(!o.e&&!o.t)delete S.dn[k];save();if(f==="e")render()}
 function notasSemana(){const wk=S.wk,E=["😫","😕","😐","🙂","💪"],r=[];[...days,"Sábado","Domingo"].forEach(d=>{const v=S.dn[wk+"|"+d];if(v)r.push(`<tr><td><b>${d.slice(0,3)}</b></td><td>${v.e?E[v.e-1]:""}</td><td class="small">${esc(v.t||"")}</td></tr>`)});
 return r.length?`<div class="card"><h3>📝 Notas da semana ${wk}</h3><table>${r.join("")}</table></div>`:""}
+/* ---------- banco de alimentos ---------- */
+// [id, nome, kcal, P, C, G por 100 g (ou ml), unidade, gramas da unidade]
+const FOODS=[
+["arroz","Arroz branco cozido",128,2.5,28.1,.2,"colher de sopa",20],["arrozi","Arroz integral cozido",124,2.6,25.8,1,"colher de sopa",20],
+["macarrao","Macarrão cozido",102,3.4,19.9,.5,"pegador",110],["batata","Batata-inglesa cozida",52,1.2,11.9,0,"unidade média",120],["batatad","Batata-doce cozida",77,.6,18.4,.1,"unidade média",130],
+["mandioca","Mandioca cozida",125,.6,30.1,.3,"pedaço",60],["cuscuz","Cuscuz de milho cozido",113,2.2,25.3,.7],["pao","Pão francês",300,8,58.6,3.1,"unidade",50],
+["paoi","Pão integral",253,9.4,49.9,3.7,"fatia",25],["paof","Pão de forma",253,8.7,49.9,3.7,"fatia",25],["tapioca","Tapioca (goma hidratada)",240,0,60,0,"colher de sopa",15],
+["aveia","Aveia em flocos",394,13.9,66.6,8.5,"colher de sopa",15],["granola","Granola",430,9,66,14,"colher de sobremesa",10],["paoq","Pão de queijo",363,5.1,34.2,24.6,"unidade",25],
+["fcarioca","Feijão carioca cozido",76,4.8,13.6,.5,"concha",140],["fpreto","Feijão preto cozido",77,4.5,14,.5,"concha",140],["lentilha","Lentilha cozida",93,6.3,16.3,.5,"colher de servir",40],["grao","Grão-de-bico cozido",128,7,21,2.7],
+["moidap","Carne moída (patinho) cozida",219,35.9,0,7.3],["moidaa","Carne moída (acém) cozida",212,26.7,0,10.9],["paleta","Carne bovina paleta cozida",194,29,0,7.5,"bife",100],
+["alcatra","Alcatra grelhada",241,31.9,0,11.5,"bife",100],["contra","Contrafilé grelhado",278,32.4,0,15.5,"bife",100],["mignon","Filé mignon grelhado",220,32.8,0,8.8,"bife",100],
+["guisado","Guisado (carne em cubos cozida)",210,31,0,9,"colher de sopa",25],["picanha","Picanha grelhada",289,29,0,19,"fatia",80],
+["peito","Frango peito grelhado",159,32,0,2.5,"pedaço pequeno",90],["sobrecoxa","Frango sobrecoxa sem pele assada",195,26,0,9,"unidade",100],["coracao","Coração de frango grelhado",207,22,0,12,"unidade",8],
+["porco","Porco bisteca grelhada",280,28,0,18,"unidade",100],["ovelha","Carne de ovelha grelhada",258,27,0,16],["tilapia","Tilápia grelhada",128,26,0,2.7,"filé",120],
+["salmao","Salmão grelhado",229,24,0,14,"filé",130],["atum","Atum em conserva (água)",116,26,0,1,"lata",120],["ovo","Ovo cozido",146,13.3,.6,9.5,"unidade",50],
+["carnibol","Carnibol (pó)",371,88,0,3,"dose",35],["leites","Leite semidesnatado",47,3.3,4.9,1.2,"xícara (ml)",200],["leite","Leite integral",61,3.2,4.7,3.3,"xícara (ml)",200],
+["iogurte","Iogurte natural",61,3.5,4.7,3.3,"pote",170],["mussarela","Queijo mussarela",330,22.6,3,25.2,"fatia",15],["prato","Queijo prato",360,22.7,1.9,29.1,"fatia",20],
+["ricota","Queijo ricota",140,12.6,3.8,8.1,"pedaço pequeno",40],["minas","Queijo minas frescal",264,17.4,3.2,20.2,"fatia",30],["requeijao","Requeijão cremoso",257,9.6,2.4,23.4,"colher de sopa",30],
+["cottage","Queijo cottage",98,11,3.4,4.3,"colher de sopa",30],["manteiga","Manteiga",726,.4,.1,82,"ponta de faca",5],["margarina","Margarina",594,.2,.4,65,"ponta de faca",5],
+["azeite","Azeite de oliva",884,0,0,100,"colher de sopa",13],["banana","Banana prata",98,1.3,26,.1,"unidade",70],["maca","Maçã",56,.3,15.2,0,"unidade",150],
+["laranja","Laranja",37,1,8.9,.1,"unidade",180],["mamao","Mamão formosa",45,.8,11.6,.1,"fatia",100],["uva","Uva",53,.7,13.6,.2,"cacho pequeno",120],["manga","Manga",51,.4,12.8,.3,"unidade",250],
+["pera","Pera",53,.6,14,.1,"unidade",150],["melancia","Melancia",33,.9,8.1,0,"fatia",200],["melao","Melão",29,.7,7.5,0,"fatia",150],["morango","Morango",30,.9,6.8,.3,"unidade",12],
+["abacaxi","Abacaxi",48,.9,12.3,.1,"fatia",75],["abacate","Abacate",96,1.2,6,8.4,"colher de sopa",30],["castanha","Castanha de caju",570,18.5,29.1,46.3,"unidade",4],
+["amendoim","Amendoim",544,27,20,43.9,"punhado",30],["pasta","Pasta de amendoim",590,25,20,50,"colher de sopa",15],["chia","Chia",486,16.5,42.1,30.7,"colher de sopa",12],
+["linhaca","Linhaça",495,14.1,43.3,32.3,"colher de chá",5],["salada","Salada crua (folhas, tomate, pepino)",20,1.2,4,.2],["legumes","Legumes cozidos",30,1.5,6,.2],
+["brocolis","Brócolis cozido",25,2.1,4.4,.5],["cenoura","Cenoura cozida",30,.8,6.7,.2],["pizza","Pizza mussarela",267,11,33,10,"fatia",110],["hamburguer","Hambúrguer de carne (cozido)",260,20,0,19,"unidade",90],
+["coxinha","Coxinha frita",270,9,28,13,"unidade",120],["chocolate","Chocolate ao leite",540,7.2,59.4,30.3,"quadradinho",5],["refri","Refrigerante cola",39,0,10,0,"lata (ml)",350],
+["cerveja","Cerveja",43,.4,3.6,0,"lata (ml)",350],["suco","Suco de laranja",45,.7,10.4,.1,"copo (ml)",200]
+];
+let fq="",fsel=null,fedit=-1,fmi=0;
+const fnorm=s=>String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"");
+function mult(mi,vi,gi,dl){const e=S.eat[dd()]||{},k=mi+"|"+vi+"|"+gi;if(e[k]===undefined)return;const n=Math.min(6,Math.max(.5,(e[k+"|m"]||1)+dl));if(n===1)delete e[k+"|m"];else e[k+"|m"]=n;save();render()}
+function openFood(mi,ei){fmi=mi;fq="";fedit=ei===undefined?-1:ei;fsel=null;if(fedit>=0){const x=(S.eatx[dd()]||[])[fedit];if(!x||!x.fid)return;fsel=FOODS.findIndex(f=>f[0]===x.fid);fmi=x.mi}document.getElementById("modal").classList.add("on");fRender()}
+function fRender(){const m=document.getElementById("modal"),M=DP[fmi].n;
+if(fsel===null||fsel<0){m.innerHTML=`<div class="sheet"><div class="sh-t">Adicionar alimento · ${esc(M)}</div><input class="in" id="fs" placeholder="Buscar (ex.: arroz, carne moída, banana)" value="${esc(fq)}" oninput="fq=this.value;fList()" autocomplete="off"><div id="flist"></div><button class="btn t" onclick="closeM()">Cancelar</button></div>`;fList();return}
+const f=FOODS[fsel],x=fedit>=0?(S.eatx[dd()]||[])[fedit]:null,last=x?{q:x.q,u:x.u}:(S.fq[f[0]]||{q:f[6]?1:100,u:f[6]?"u":"g"});
+m.innerHTML=`<div class="sheet"><div class="sh-t">${esc(f[1])}</div><div class="small">por 100 g: ${f[2]} kcal · P ${f[3]} · C ${f[4]} · G ${f[5]}</div>
+<div style="display:flex;gap:8px"><input class="in" id="fqty" inputmode="decimal" value="${esc(last.q)}" oninput="fCalc()" style="flex:1"><select class="in" id="fun" onchange="fCalc()" style="flex:1"><option value="g" ${last.u!=="u"?"selected":""}>gramas (g/ml)</option>${f[6]?`<option value="u" ${last.u==="u"?"selected":""}>${esc(f[6])} (≈ ${f[7]} g)</option>`:""}</select></div>
+<div class="card" id="fcalc" style="margin:0"></div>
+<button class="btn" style="width:100%" onclick="fSave()">${x?"Salvar alteração":"Adicionar à refeição"}</button><button class="btn t" onclick="${x?"closeM()":"fsel=null;fRender()"}">${x?"Cancelar":"← Escolher outro alimento"}</button><div class="small">Valores aproximados de tabelas de alimentos (alimento cozido ou pronto para comer). Pesar sempre dá o número mais preciso.</div></div>`;fCalc()}
+function fList(){const el=document.getElementById("flist");if(!el)return;const q=fnorm(fq).trim();
+const rec=!q?S.frec.map(id=>FOODS.findIndex(f=>f[0]===id)).filter(i=>i>=0):[];
+const list=(q?FOODS.map((f,i)=>i).filter(i=>fnorm(FOODS[i][1]).includes(q)):FOODS.map((f,i)=>i)).slice(0,q?40:80);
+const row=i=>`<button class="btn t" style="text-align:left;display:flex;justify-content:space-between;gap:8px;width:100%;margin-top:6px" onclick="fPick(${i})"><span>${esc(FOODS[i][1])}</span><span class="small">${FOODS[i][2]} kcal/100 g</span></button>`;
+el.innerHTML=(rec.length?`<div class="small" style="margin-top:8px">Usados recentemente</div>`+rec.map(row).join("")+`<div class="small" style="margin-top:10px">Todos</div>`:"")+list.map(row).join("")+(q&&!list.length?`<p class="small">Nada encontrado. Use “+ Outra coisa (kcal)” para digitar as calorias.</p>`:"")}
+function fPick(i){fsel=i;fRender()}
+function fVals(){const f=FOODS[fsel],q=num(document.getElementById("fqty").value),u=document.getElementById("fun").value;if(q===null||q<=0)return null;const g=u==="u"?q*f[7]:q,k=g/100;return{q,u,g,k:f[2]*k,p:f[3]*k,c:f[4]*k,gr:f[5]*k}}
+function fCalc(){const v=fVals(),el=document.getElementById("fcalc");if(!el)return;el.innerHTML=v?`<div style="font-size:26px;font-weight:800;color:var(--ac)">${brn(v.k,0)} <span class="small">kcal</span></div><div class="small">${brn(v.g,0)} g · P ${brn(v.p,1)} g · C ${brn(v.c,1)} g · G ${brn(v.gr,1)} g</div>`:`<div class="small">Digite a quantidade.</div>`}
+function fSave(){const v=fVals();if(!v){alert("Digite uma quantidade maior que zero.");return}if(v.g>3000){alert("Confira a quantidade: parece muito alta.");return}
+const f=FOODS[fsel],un=v.u==="u"?" "+f[6]:" g",r=n=>Math.round(n*10)/10;
+const x={mi:fmi,fid:f[0],q:v.q,u:v.u,n:f[1]+" · "+brn(v.q)+un,k:Math.round(v.k),p:r(v.p),c:r(v.c),g:r(v.gr)};
+const a=S.eatx[dd()]=S.eatx[dd()]||[];if(fedit>=0)a[fedit]=x;else a.push(x);
+S.fq[f[0]]={q:v.q,u:v.u};S.frec=[f[0],...S.frec.filter(i=>i!==f[0])].slice(0,8);save();closeM();render()}
 /* ---------- fotos e vídeos ---------- */
 let mdb=null,mex="",mtip="",murls=[],msel=[],mrc="";
 function mOpen(){return new Promise((res,rej)=>{if(mdb)return res(mdb);const r=indexedDB.open("treino-media",1);r.onupgradeneeded=()=>{r.result.createObjectStore("m",{keyPath:"id"}).createIndex("ex","ex")};r.onsuccess=()=>{mdb=r.result;res(mdb)};r.onerror=()=>rej(r.error)})}
@@ -385,6 +438,28 @@ function dietWeek(){const r=[];for(let q=0;q<7;q++){const d=ymd(new Date(Date.no
 function resumoDieta(){const r=dietWeek(),reg=r.filter(x=>x.has),n=reg.length,pl=planAll(),avg=f=>n?reg.reduce((s,x)=>s+x.t[f],0)/n:0;
 return `<div class="card"><h3>🍽 Dieta · últimos 7 dias</h3>${n?`<div class="grid"><div class="stat"><div class="v">${n}/7</div><div class="l">dias registrados</div></div><div class="stat"><div class="v">${brn(avg("k"),0)}</div><div class="l">kcal por dia (média)</div></div><div class="stat"><div class="v">${brn(avg("p"),0)} g</div><div class="l">proteína por dia</div></div><div class="stat"><div class="v">${Math.round(avg("k")/pl.k*100)}%</div><div class="l">do plano completo</div></div></div>
 <table style="margin-top:8px"><tr><th>Dia</th><th>kcal</th><th>Prot.</th><th>Carb.</th><th>Gord.</th></tr>${r.map(x=>`<tr><td>${fmtD(x.d)}</td>${x.has?`<td>${brn(x.t.k,0)}</td><td>${brn(x.t.p,0)}</td><td>${brn(x.t.c,0)}</td><td>${brn(x.t.g,0)}</td>`:`<td colspan="4" class="small">sem registro</td>`}</tr>`).join("")}</table><p class="small">A média só conta os dias que você registrou. Valores estimados.</p>`:`<p class="small">Marque o que comeu na aba Dieta para ver a média da semana aqui.</p>`}</div>`}
+/* ---------- avaliações da nutri ---------- */
+const AVK=[["abd","Abdominal"],["tri","Tríceps"],["sup","Suprailíaca"],["axi","Axilar média"],["sub","Subescapular"],["tor","Tórax"],["cox","Coxa"]];
+const avSum=a=>{const v=AVK.map(([k])=>a.k&&a.k[k]);return v.every(x=>x!=null)?v.reduce((s,x)=>s+x,0):null};
+const avVal=(a,f)=>f==="sd"?avSum(a):(f.startsWith("k_")?(a.k||{})[f.slice(2)]:a[f]);
+function avalCard(){const L=[...S.aval].sort((a,b)=>a.d<b.d?-1:1),sh=L.slice(-3),last=sh[sh.length-1],prev=sh.length>1?sh[sh.length-2]:null;
+const R=[["w","Peso","kg",0],["f","% gordura","%",-1],["gk","Massa gorda","kg",-1],["lm","Massa magra","kg",1],["c","Cintura","cm",-1],["a","Abdômen","cm",-1],["q","Quadril","cm",0],["sd","Soma das 7 dobras","mm",-1],...AVK.map(([k,l])=>["k_"+k,"· "+l,"mm",-1])];
+const fm=(v,u)=>v==null?"—":brn(Math.round(v*100)/100)+(u==="%"?"%":"");
+const rows=R.map(([f,l,u,g])=>{const dv=last&&prev&&avVal(last,f)!=null&&avVal(prev,f)!=null?avVal(last,f)-avVal(prev,f):null;
+const cl=dv===null||Math.abs(dv)<0.005||!g?"var(--mut)":(dv*g>0?"var(--ac)":"var(--red)");
+return `<tr><td${f.startsWith("k_")?' class="small"':""}>${esc(l)}</td>${sh.map(a=>`<td>${fm(avVal(a,f),u)}</td>`).join("")}<td style="color:${cl};font-weight:700">${dv===null?"":(dv>0?"+":dv<0?"−":"")+brn(Math.abs(Math.round(dv*100)/100))}</td></tr>`}).join("");
+const F=[["w","Peso (kg)"],["f","% gordura"],["gk","Massa gorda (kg)"],["lm","Massa magra (kg)"],["c","Cintura (cm)"],["a","Abdômen (cm)"],["q","Quadril (cm)"],...AVK.map(([k,l])=>["k_"+k,"Dobra "+l.toLowerCase()+" (mm)"])];
+return `<div class="card"><h3>🧾 Avaliações da nutri</h3>${last?`<table><tr><th></th>${sh.map(a=>`<th>${fmtD(a.d)}/${a.d.slice(2,4)}</th>`).join("")}<th>${prev?"Δ":""}</th></tr>${rows}</table><p class="small">Verde = melhorou, vermelho = piorou, em relação à avaliação anterior. Massa gorda e magra: calculadas do peso e do % de gordura quando você não preenche.</p>`:`<p class="small">Nenhuma avaliação registrada.</p>`}
+<details><summary class="btn t" style="list-style:none;text-align:center;margin-top:8px">+ Nova avaliação</summary><div style="margin-top:8px"><input class="in" type="date" id="av_d" value="${todayStr()}" max="${todayStr()}"><div class="grid" style="margin-top:8px">${F.map(([f,l])=>`<input class="in" id="av_${f}" inputmode="decimal" placeholder="${l}">`).join("")}</div><button class="btn" style="width:100%;margin-top:8px" onclick="saveAv()">Salvar avaliação</button></div></details>
+${L.length?`<div class="small" style="margin-top:10px">Registros: ${L.slice().reverse().map(a=>`${fmtD(a.d)}/${a.d.slice(2,4)} <button class="tab" style="padding:1px 8px" onclick="delAv('${a.d}')">🗑</button>`).join(" · ")}</div>`:""}</div>`}
+function saveAv(){const g=i=>num(document.getElementById("av_"+i).value),d=document.getElementById("av_d").value||todayStr(),o={d,k:{}};
+const base=["w","f","gk","lm","c","a","q"];base.forEach(f=>{const x=g(f);if(x!==null)o[f]=x});AVK.forEach(([k])=>{const x=g("k_"+k);if(x!==null)o.k[k]=x});
+if(o.w==null&&o.f==null){alert("Preencha pelo menos o peso ou o % de gordura.");return}
+if((o.w!=null&&(o.w<30||o.w>300))||(o.f!=null&&(o.f<2||o.f>70))){alert("Confira o peso (kg) e o % de gordura.");return}
+if(o.w!=null&&o.f!=null){if(o.gk==null)o.gk=Math.round(o.w*o.f)/100;if(o.lm==null)o.lm=Math.round((o.w-o.gk)*100)/100}
+const i=S.aval.findIndex(x=>x.d===d);if(i>=0)S.aval[i]=Object.assign(S.aval[i],o,{k:Object.assign(S.aval[i].k||{},o.k)});else S.aval.push(o);
+const mi=S.meas.findIndex(m=>m.d===d),m=mi>=0?S.meas[mi]:{d};["w","c","a","q","f"].forEach(f=>{if(o[f]!=null)m[f]=o[f]});if(mi<0)S.meas.push(m);S.meas.sort((a,b)=>a.d<b.d?-1:1);save();render()}
+function delAv(d){if(confirm("Apagar a avaliação de "+fmtD(d)+"? (as medidas semanais continuam)")){S.aval=S.aval.filter(x=>x.d!==d);save();render()}}
 /* ---------- medidas ---------- */
 const CH={};
 function chart(title,unit,pts,color,id,dl){
@@ -415,7 +490,7 @@ return `<div class="card"><h3>📏 Nova medida</h3>
 <div class="grid" style="margin-top:8px"><input class="in" id="mw" inputmode="decimal" placeholder="Peso (kg)"><input class="in" id="mc" inputmode="decimal" placeholder="Cintura (cm)"><input class="in" id="ma" inputmode="decimal" placeholder="Abdômen (cm)"><input class="in" id="mq" inputmode="decimal" placeholder="Quadril (cm)"></div>
 <input class="in" id="mf" inputmode="decimal" placeholder="% de gordura (bioimpedância ou nutri)" style="margin-top:8px">
 <button class="btn t" style="width:100%;margin-top:8px" onclick="saveMeas()">Salvar medida</button></div>`
-+chart("Peso","kg",pw,"#38bdf8","mp",delta(pw,"kg"))+chart("Cintura","cm",pc,"#a78bfa","mc",delta(pc,"cm"))
++avalCard()+chart("Peso","kg",pw,"#38bdf8","mp",delta(pw,"kg"))+chart("Cintura","cm",pc,"#a78bfa","mc",delta(pc,"cm"))
 +(pa.length?chart("Abdômen","cm",pa,"#fb923c","ma",delta(pa,"cm")):"")+(pf.length?chart("Gordura corporal","%",pf,"#f472b6","mf",delta(pf,"%")):"")
 +(ms.length?`<div class="card"><h3>Registros</h3><table><tr><th>Data</th><th>Peso</th><th>Cint.</th><th>Abd.</th><th>Quad.</th><th>%G</th><th></th></tr>`+ms.slice().reverse().map(m=>`<tr><td>${fmtD(m.d)}/${m.d.slice(2,4)}</td>${["w","c","a","q","f"].map(f=>`<td>${m[f]!=null?brn(m[f]):"—"}</td>`).join("")}<td><button class="tab" style="padding:2px 10px" onclick="delMeas('${m.d}')">🗑</button></td></tr>`).join("")+`</table><p class="small">Peso em kg, medidas em cm, gordura em %.</p></div>`:"")}
 function saveMeas(){const d=document.getElementById("md").value||todayStr(),v={};
@@ -431,7 +506,7 @@ const dd=()=>ddate||todayStr();
 const MF=["k","p","c","g"];
 function eatKeys(){return Object.keys(S.eat[dd()]||{})}
 function sumEat(mi,d){d=d||dd();const t={k:0,p:0,c:0,g:0},e=S.eat[d]||{};
-Object.keys(e).forEach(key=>{const [m,v,g]=key.split("|").map(Number);if(mi!=null&&m!==mi)return;const G=DP[m]&&DP[m].v[v]&&DP[m].v[v].g[g];if(G)MF.forEach((f,q)=>t[f]+=G.m[q])});
+Object.keys(e).forEach(key=>{const pp=key.split("|");if(pp.length>3)return;const [m,v,g]=pp.map(Number);if(mi!=null&&m!==mi)return;const G=DP[m]&&DP[m].v[v]&&DP[m].v[v].g[g];if(G){const mm=e[key+"|m"]||1;MF.forEach((f,q)=>t[f]+=G.m[q]*mm)}});
 (S.eatx[d]||[]).forEach(x=>{if(mi!=null&&x.mi!==mi)return;MF.forEach(f=>t[f]+=num(x[f])||0)});return t}
 function planOf(mi){const t={k:0,p:0,c:0,g:0};DP[mi].v[0].g.forEach(G=>MF.forEach((f,q)=>t[f]+=G.m[q]));return t}
 function planAll(){const t={k:0,p:0,c:0,g:0};DP.forEach((_,i)=>{const p=planOf(i);MF.forEach(f=>t[f]+=p[f])});return t}
@@ -444,7 +519,7 @@ function togOpen(i){dopen[i]=!dopen[i];render()}
 function setVar(i,v){dvar[i]=v;render()}
 function pickO(mi,vi,gi,oi){const e=S.eat[dd()]=S.eat[dd()]||{},k=mi+"|"+vi+"|"+gi;
 Object.keys(e).forEach(x=>{const p=x.split("|").map(Number);if(p[0]===mi&&p[1]!==vi)delete e[x]});
-if(e[k]===oi)delete e[k];else{e[k]=oi;S.dlast[k]=oi;S.dlastv[mi]=vi}save();render()}
+if(e[k]===oi){delete e[k];delete e[k+"|m"]}else{e[k]=oi;S.dlast[k]=oi;S.dlastv[mi]=vi}save();render()}
 function repLast(mi){const vi=S.dlastv[mi]!==undefined?S.dlastv[mi]:(dvar[mi]||0),V=DP[mi].v[vi],ne={};let n=0;
 V.g.forEach((G,gi)=>{const k=mi+"|"+vi+"|"+gi,v=S.dlast[k];if(v!==undefined&&v<G.o.length){ne[k]=v;n++}});
 if(!n){alert("Ainda não há uma escolha anterior desta refeição. Marque as opções uma vez.");return}
@@ -467,10 +542,10 @@ function delExtra(i){(S.eatx[dd()]||[]).splice(i,1);save();render()}
 function dieta(){const G=S.diet.goal,d=dd(),isT=!ddate,e=S.eat[d]||{},ex=S.eatx[d]||[];
 const meals=DP.map((M,mi)=>{const vi=Math.min(dvar[mi]||0,M.v.length-1),V=M.v[vi],s=sumEat(mi),pl=planOf(mi),any=Object.keys(e).some(x=>+x.split("|")[0]===mi)||ex.some(x=>x.mi===mi),op=!!dopen[mi];
 let body="";if(op){body=(M.v.length>1?`<div class="vt">${M.v.map((v,q)=>`<button class="tab ${q===vi?"on":""}" onclick="setVar(${mi},${q})">${esc(v.t)}</button>`).join("")}</div>`:"")
-+V.g.map((G,gi)=>`<div class="grp"><div class="gt"><span>${esc(G.t)}</span><span class="small">≈ ${G.m[0]} kcal</span></div><div class="chips">${G.o.map((o,oi)=>`<button class="chip ${e[mi+"|"+vi+"|"+gi]===oi?"on":(S.dlast[mi+"|"+vi+"|"+gi]===oi?"last":"")}" onclick="pickO(${mi},${vi},${gi},${oi})">${esc(o)}</button>`).join("")}</div></div>`).join("")
++V.g.map((G,gi)=>`<div class="grp"><div class="gt"><span>${esc(G.t)}</span><span class="small">≈ ${Math.round(G.m[0]*(e[mi+"|"+vi+"|"+gi+"|m"]||1))} kcal</span></div><div class="chips">${G.o.map((o,oi)=>`<button class="chip ${e[mi+"|"+vi+"|"+gi]===oi?"on":(S.dlast[mi+"|"+vi+"|"+gi]===oi?"last":"")}" onclick="pickO(${mi},${vi},${gi},${oi})">${esc(o)}</button>`).join("")}</div>${e[mi+"|"+vi+"|"+gi]!==undefined?`<div class="drow" style="margin-top:6px"><span class="small">Porções (1 = a do plano)</span><span><button class="tab" onclick="mult(${mi},${vi},${gi},-.5)">−</button> <b>${e[mi+"|"+vi+"|"+gi+"|m"]||1}×</b> <button class="tab" onclick="mult(${mi},${vi},${gi},.5)">+</button></span></div>`:""}</div>`).join("")
 +(V.note?`<div class="small" style="margin:8px 0">${esc(V.note)}</div>`:"")
-+ex.map((x,q)=>x.mi===mi?`<div class="drow" style="margin:6px 0"><span>➕ ${esc(x.n)}</span><span><b>${brn(x.k,0)}</b> kcal <button class="tab" onclick="delExtra(${q})">✕</button></span></div>`:"").join("")
-+`<div class="small" style="margin-top:6px">Contorno tracejado = o que você escolheu da última vez.</div>${(S.dfav[mi]||[]).map((f,q)=>`<div class="drow" style="margin:6px 0"><button class="tab" onclick="applyFav(${mi},${q})">⭐ ${esc(f.n)}</button><button class="tab" onclick="delFav(${mi},${q})">🗑</button></div>`).join("")}<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"><button class="tab" onclick="repLast(${mi})">↻ Repetir a última vez</button><button class="tab" onclick="saveFav(${mi})">⭐ Salvar favorita</button><button class="tab" onclick="eatAll(${mi})">✓ Comi tudo (1ª opção)</button><button class="tab" onclick="openExtra(${mi})">+ Comi outra coisa</button><button class="tab" onclick="eatClear(${mi})">Limpar</button></div>`}
++ex.map((x,q)=>x.mi===mi?`<div class="drow" style="margin:6px 0"><span>➕ ${esc(x.n)}</span><span><b>${brn(x.k,0)}</b> kcal ${x.fid?`<button class="tab" onclick="openFood(${mi},${q})">✎</button> `:""}<button class="tab" onclick="delExtra(${q})">✕</button></span></div>`:"").join("")
++`<div class="small" style="margin-top:6px">Contorno tracejado = o que você escolheu da última vez.</div>${(S.dfav[mi]||[]).map((f,q)=>`<div class="drow" style="margin:6px 0"><button class="tab" onclick="applyFav(${mi},${q})">⭐ ${esc(f.n)}</button><button class="tab" onclick="delFav(${mi},${q})">🗑</button></div>`).join("")}<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"><button class="tab" onclick="repLast(${mi})">↻ Repetir a última vez</button><button class="tab" onclick="saveFav(${mi})">⭐ Salvar favorita</button><button class="tab" onclick="eatAll(${mi})">✓ Comi tudo (1ª opção)</button><button class="tab on" onclick="openFood(${mi})" style="background:var(--ac);color:#06210f">＋ Alimento (pesar)</button><button class="tab" onclick="openExtra(${mi})">+ Outra coisa (kcal)</button><button class="tab" onclick="eatClear(${mi})">Limpar</button></div>`}
 return `<div class="meal ${any?"done":""}"><div class="mtop" style="margin:0" onclick="togOpen(${mi})"><div style="flex:1"><b>${esc(M.n)}</b><div class="small">${esc(M.h)} · ${any?`<b style="color:var(--ac)">${brn(s.k,0)}</b> kcal comidas · `:""}plano ≈ ${Math.round(pl.k)} kcal</div></div><span style="font-size:18px">${any?"✅ ":""}${op?"▴":"▾"}</span></div>${body}</div>`}).join("");
 return `<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><button class="tab" onclick="dshift(-1)">‹</button><b>${isT?"Hoje · ":""}${fmtD(d)}</b><button class="tab" onclick="dshift(1)">›</button></div></div>
 <div class="card"><h3>Calorias e macros do dia</h3><div id="dtot">${dietTotals()}</div><div class="small">Toque numa refeição, depois na opção que você comeu. Valores estimados com base em tabelas de alimentos, não são o cálculo do Dietbox.</div></div>
