@@ -86,6 +86,17 @@ ul{padding-left:18px;margin:6px 0}li{margin:4px 0}
 table{width:100%;border-collapse:collapse;font-size:13px}td,th{border-bottom:1px solid var(--bd);padding:6px 4px;text-align:left;vertical-align:top}th{color:var(--mut);font-weight:600}
 .prog{height:6px;background:var(--card2);border-radius:9px;overflow:hidden;margin:4px 0 12px}
 .prog i{display:block;height:100%;background:var(--ac);width:0;transition:width .3s}
+.lgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.lc{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:10px;text-align:left;color:var(--tx);font-family:inherit}
+.lf{position:relative;display:flex;justify-content:center;background:var(--card2);border-radius:10px;padding:6px;margin-bottom:6px}
+.lb{position:absolute;top:4px;left:4px;background:var(--ac);color:#06210f;font-size:10px;font-weight:800;border-radius:6px;padding:2px 6px}
+.ln{font-weight:700;font-size:14px;line-height:1.25;margin-bottom:2px}
+.lchips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.lch{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px;background:var(--card2);border:1px solid var(--bd);color:var(--tx);border-radius:12px;padding:6px 10px;font-size:11px;min-width:66px;font-family:inherit}
+.lch.on{border-color:var(--ac);color:var(--ac)}
+.lfig{display:flex;justify-content:center;gap:16px;background:var(--card2);border-radius:12px;padding:8px}
+.lol{margin:0;padding-left:20px}.lol li{margin-bottom:6px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%}
 </style>
 </head>
 <body>
@@ -179,7 +190,7 @@ const min=Math.min(...p.reps);
 if(min<lo)return`Abaixo da faixa (${min} reps com ${p.kg} kg): mantenha ou reduza para <b>${r5(p.kg-inc)} kg</b> e foque na técnica.`;
 return`➡️ Mantenha <b>${p.kg} kg</b> e tente +1 rep nas séries abaixo de ${hi}.`}
 function r5(x){return Math.round(x*2)/2}
-const VER="12";
+const VER="14";
 const DEF_H=["07:00","09:30","12:30","15:30","19:30","22:00"];
 const FRUTA=["Maçã 1 un (150g)","Ameixa 4 un","Mamão 3 pedaços (50g cada)","Uva 15 un (120g)","Banana prata 1 pequena (90g)","Manga 1 un (120g)","Bergamota 1 un","Pera 1 un (120g)","Melão 5 fatias (50g)","Laranja 1 un","Morango 40 un (5g)","Melancia 1 fatia","Abacaxi 10 fatias finas"];
 const PAO=["Pão francês 1 un","Tapioca de goma 3 col. sopa","Rap10 integral 1 un","Pão integral 2 fatias","Pão de forma 2 fatias"];
@@ -359,6 +370,35 @@ const f=FOODS[fsel],un=v.u==="u"?" "+f[6]:" g",r=n=>Math.round(n*10)/10;
 const x={mi:fmi,fid:f[0],q:v.q,u:v.u,n:f[1]+" · "+brn(v.q)+un,k:Math.round(v.k),p:r(v.p),c:r(v.c),g:r(v.gr)};
 const a=S.eatx[dd()]=S.eatx[dd()]||[];if(fedit>=0)a[fedit]=x;else a.push(x);
 S.fq[f[0]]={q:v.q,u:v.u};S.frec=[f[0],...S.frec.filter(i=>i!==f[0])].slice(0,8);save();closeM();render()}
+/* ---------- fotos de progresso ---------- */
+const POSES=[["f","Frente"],["l","Lado"],["c","Costas"]];
+let pa="",pb="",pp="f",purls=[];
+function pClean(){purls.forEach(u=>URL.revokeObjectURL(u));purls=[]}
+function fotos(){return `<div class="card"><h3>📸 Fotos de progresso</h3><div class="small">Uma vez por mês, no mesmo lugar, com a mesma luz e a mesma distância (cerca de 2 m). Roupa justa ou short, de manhã e em jejum. Postura relaxada, braços soltos, câmera na altura do umbigo. Frente, lado e costas.</div></div>
+<div class="card"><h3>Nova sessão</h3><input class="in" type="date" id="pd" value="${todayStr()}" max="${todayStr()}"><div class="btns" style="margin-top:8px">${POSES.map(([k,l])=>`<label class="btn t" style="text-align:center;cursor:pointer">${l}<input type="file" accept="image/*" hidden onchange="addProg(this,'${k}')"></label>`).join("")}</div><div class="small" style="margin-top:6px">Tocar de novo na mesma pose e data substitui a foto. As fotos ficam só neste iPhone e não entram no backup: se apagar o ícone do app, elas se perdem.</div></div><div id="pbody"><div class="small" style="padding:0 16px">Carregando…</div></div>`}
+function pMet(d){const m=[...S.meas].sort((a,b)=>a.d<b.d?-1:1).filter(x=>x.d<=d).pop();return m||null}
+async function pLoad(){const el=document.getElementById("pbody");if(!el)return;let items=[];
+try{items=await mList("__prog")}catch(e){el.innerHTML=`<div class="card"><p class="small">Não consegui abrir o armazenamento de fotos neste aparelho.</p></div>`;return}
+pClean();const url=b=>{const u=URL.createObjectURL(b);purls.push(u);return u};
+const by={};items.forEach(it=>{(by[it.d]=by[it.d]||{})[it.pose]=it});const ds=Object.keys(by).sort();
+if(!ds.length){el.innerHTML=`<div class="card"><p class="small">Nenhuma foto ainda. Escolha a data e toque em Frente, Lado e Costas para tirar ou escolher as fotos.</p></div>`;return}
+if(!ds.includes(pa))pa=ds[0];if(!ds.includes(pb))pb=ds[ds.length-1];
+const ph=(d,k,big)=>{const it=(by[d]||{})[k];return it?`<img src="${url(it.b)}" alt="${fmtD(d)}" onclick="viewPh('${it.id}')" style="width:100%;border-radius:10px;display:block;${big?"":"aspect-ratio:3/4;object-fit:cover"}">`:`<div class="small" style="border:1px dashed var(--bd);border-radius:10px;aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;text-align:center">sem foto</div>`};
+const mt=d=>{const m=pMet(d);return m?[m.w!=null?brn(m.w)+" kg":"",m.c!=null?"cintura "+brn(m.c):"",m.f!=null?brn(m.f)+"% gord.":""].filter(Boolean).join(" · "):""};
+const dl=(f,u)=>{const A=pMet(pa),B=pMet(pb);if(!A||!B||A[f]==null||B[f]==null)return"";const x=Math.round((B[f]-A[f])*100)/100;return `${u} ${brn(A[f])} → ${brn(B[f])} (${x>0?"+":x<0?"−":""}${brn(Math.abs(x))})`};
+const sel=(id,v)=>`<select class="in" style="flex:1" onchange="${id}=this.value;pLoad()">${ds.map(d=>`<option value="${d}" ${d===v?"selected":""}>${fmtD(d)}/${d.slice(2,4)}</option>`).join("")}</select>`;
+const deltas=[dl("w","Peso"),dl("c","Cintura"),dl("a","Abdômen"),dl("f","% gordura")].filter(Boolean);
+el.innerHTML=(ds.length>1?`<div class="card"><h3>Comparar</h3><div style="display:flex;gap:8px"><div style="flex:1"><div class="small">Antes</div>${sel("pa",pa)}</div><div style="flex:1"><div class="small">Depois</div>${sel("pb",pb)}</div></div>
+<div class="btns" style="margin:8px 0">${POSES.map(([k,l])=>`<button class="btn t ${pp===k?"sel":""}" onclick="pp='${k}';pLoad()">${l}</button>`).join("")}</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div>${ph(pa,pp,1)}<div class="small" style="text-align:center;margin-top:4px">${fmtD(pa)}/${pa.slice(2,4)}</div></div><div>${ph(pb,pp,1)}<div class="small" style="text-align:center;margin-top:4px">${fmtD(pb)}/${pb.slice(2,4)}</div></div></div>
+${deltas.length?`<p class="small" style="margin-top:8px">${deltas.map(esc).join("<br>")}</p>`:""}<div class="small">Toque numa foto para ampliar. A leitura é visual: luz, ângulo e postura mudam o resultado. Para números, valem a nutri e as medidas.</div></div>`:"")
++ds.slice().reverse().map(d=>`<div class="card"><div class="drow"><b>${fmtD(d)}/${d.slice(2,4)}</b><button class="tab" style="padding:2px 10px" onclick="delProg('${d}')" aria-label="Apagar fotos">🗑</button></div><div class="small" style="margin:2px 0 8px">${esc(mt(d))}</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">${POSES.map(([k])=>ph(d,k,0)).join("")}</div></div>`).join("")}
+async function addProg(inp,pose){const f=inp.files[0];inp.value="";if(!f)return;const d=document.getElementById("pd").value||todayStr();
+try{const b=await shrink(f);await mPut({id:"pp|"+d+"|"+pose,ex:"__prog",d,pose,t:Date.now(),type:"i",b,s:"",n:""});if(!S.lastPhoto||d>S.lastPhoto){S.lastPhoto=d;save()}
+if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();pa="";pb="";pLoad()}catch(e){alert("Não consegui salvar a foto neste aparelho (pouco espaço?).")}}
+async function delProg(d){if(!confirm("Apagar as fotos de "+fmtD(d)+"?"))return;for(const p of POSES){try{await mDel("pp|"+d+"|"+p[0])}catch(e){}}pLoad()}
+async function viewPh(id){const o=await mGet(id);if(!o)return;const u=URL.createObjectURL(o.b);murls.push(u);const m=document.getElementById("modal"),nm=(POSES.find(p=>p[0]===o.pose)||["","" ])[1];
+m.innerHTML=`<div class="sheet"><div class="sh-t">${fmtD(o.d)}/${o.d.slice(2,4)} · ${nm}</div><img src="${u}" alt="" style="width:100%;border-radius:12px"><button class="btn t" onclick="closeM()">Fechar</button></div>`;m.classList.add("on")}
 /* ---------- fotos e vídeos ---------- */
 let mdb=null,mex="",mtip="",murls=[],msel=[],mrc="";
 function mOpen(){return new Promise((res,rej)=>{if(mdb)return res(mdb);const r=indexedDB.open("treino-media",1);r.onupgradeneeded=()=>{r.result.createObjectStore("m",{keyPath:"id"}).createIndex("ex","ex")};r.onsuccess=()=>{mdb=r.result;res(mdb)};r.onerror=()=>rej(r.error)})}
@@ -552,11 +592,184 @@ return `<div class="card"><div style="display:flex;justify-content:space-between
 `+meals+`<div class="card"><h3>🎯 Meta diária (opcional)</h3><div class="mac">${[["k","kcal"],["p","Prot. (g)"],["c","Carb. (g)"],["g","Gord. (g)"]].map(([f,l])=>`<div><div class="sh">${l}</div><input class="in" inputmode="numeric" value="${esc(G[f]||"")}" placeholder="–" onchange="setDG('${f}',this.value)"></div>`).join("")}</div><div class="small" style="margin-top:8px">Se a nutricionista passou uma meta, coloque aqui. Sem meta, as barras comparam com o plano completo (≈ ${Math.round(planAll().k)} kcal).</div></div>`}
 function setDG(f,v){S.diet.goal[f]=String(v).trim();save();refreshTot()}
 
-const TABL={Hoje:"🏠 Hoje",Medidas:"📏 Medidas",Resumo:"🏆 Resumo",Dieta:"🍽 Dieta",Perfil:"📋 Guia"};
-function tabs(){const all=["Hoje",...days,"Medidas","Resumo","Dieta","Perfil"];const nav=document.getElementById("tabs");
+/*LIB*/
+/* ---------- biblioteca de exercícios ---------- */
+const MUS={peito:"Peitoral",ombros:"Deltoides (ombros)",biceps:"Bíceps",triceps:"Tríceps",antebraco:"Antebraço",abdomen:"Abdômen (reto abdominal)",obliquos:"Oblíquos",quadriceps:"Quadríceps",adutores:"Adutores",panturrilha:"Panturrilha",trapezio:"Trapézio",dorsais:"Dorsais (costas)",lombar:"Lombar",gluteos:"Glúteos",posterior:"Posterior da coxa"};
+const GRP=[["pei","Peito","peito"],["cos","Costas","dorsais"],["omb","Ombros","ombros"],["bic","Bíceps","biceps"],["tri","Tríceps","triceps"],["qua","Quadríceps","quadriceps"],["pos","Posterior e glúteos","posterior,gluteos"],["pan","Panturrilha","panturrilha"],["abd","Abdômen","abdomen"],["tra","Trapézio","trapezio"]];
+const E=(n,g,q,p,s,st,dc,er)=>({n,g,q,p:p.split(","),s:s?s.split(","):[],st,dc,er});
+const LIB=[
+// PEITO
+E("Supino reto","pei","Barra e banco","peito","ombros,triceps",["Deite no banco com os olhos sob a barra, pés firmes no chão e escápulas juntas e para baixo.","Pegada um pouco mais larga que os ombros. Tire a barra do suporte com os braços estendidos.","Desça com controle até tocar de leve a parte baixa do peito (linha do mamilo).","Empurre a barra de volta para cima, sem travar os cotovelos com força."],["Cotovelos a cerca de 45° do tronco, não abertos a 90°.","Mantenha as escápulas fixas no banco do começo ao fim.","Peça um apoio (spotter) nas séries pesadas."],"Tirar o quadril do banco ou quicar a barra no peito."),
+E("Supino com halteres","pei","Halteres e banco","peito","ombros,triceps",["Sente com os halteres sobre as coxas e deite-se levando-os ao lado do peito.","Palmas à frente, antebraços verticais, escápulas juntas.","Empurre os halteres para cima até quase se encontrarem, sem bater.","Desça devagar até sentir o peito alongar."],["Amplitude maior que a da barra: use cargas menores.","Pare a descida quando os cotovelos passarem um pouco da linha do corpo."],"Deixar os cotovelos abrirem demais e sobrecarregar o ombro."),
+E("Supino inclinado com halteres","pei","Halteres e banco inclinado","peito","ombros,triceps",["Ajuste o banco entre 30° e 45° e sente com os halteres apoiados nas coxas.","Leve os halteres ao lado da parte alta do peito, escápulas juntas.","Empurre para cima e levemente para dentro, sem travar os cotovelos.","Desça controlando até alongar o peito, sem bater os halteres."],["Inclinação acima de 45° passa o trabalho para o ombro.","Descida de 2 a 3 segundos."],"Banco muito inclinado e arquear a lombar."),
+E("Supino inclinado na barra","pei","Barra e banco inclinado","peito","ombros,triceps",["Banco entre 30° e 45°, olhos sob a barra, escápulas juntas.","Tire a barra e desça até a parte alta do peito.","Empurre de volta em linha ligeiramente curva, sem travar os cotovelos."],["Pegada na largura que deixa os antebraços verticais no fundo do movimento."],"Descer a barra no pescoço ou na clavícula."),
+E("Supino inclinado na máquina","pei","Máquina","peito","ombros,triceps",["Ajuste o banco para as pegadas ficarem na altura da parte alta do peito.","Costas e cabeça apoiadas, ombros para trás.","Empurre até estender quase totalmente os braços e volte devagar."],["Ótima opção para chegar perto da falha com segurança."],"Soltar o peso no retorno em vez de controlar."),
+E("Chest press / máquina","pei","Máquina","peito","ombros,triceps",["Ajuste o banco para a pegada ficar na altura do meio do peito.","Costas apoiadas, ombros para trás e para baixo.","Empurre sem travar os cotovelos e volte devagar até alongar o peito."],["Segure 1 s na posição de maior contração.","Mantenha os punhos alinhados com os antebraços."],"Levantar os ombros em direção às orelhas."),
+E("Peck deck (voador)","pei","Máquina","peito","ombros",["Ajuste o banco para os cotovelos ficarem na altura do peito.","Costas apoiadas e peito aberto.","Junte os braços à frente, apertando o peito, e volte devagar até sentir o alongamento."],["Cotovelos levemente flexionados e fixos.","Volte só até o ombro alongar, sem passar da linha do corpo."],"Usar carga demais e ‘jogar’ os braços."),
+E("Crucifixo com halteres","pei","Halteres e banco","peito","ombros",["Deitado com halteres acima do peito, palmas se olhando, cotovelos levemente flexionados.","Abra os braços em arco até sentir o peito alongar.","Feche o arco de volta, como se abraçasse uma árvore."],["Carga leve: o exercício é de alongamento e controle."],"Esticar os cotovelos e transformar em supino."),
+E("Crucifixo inclinado","pei","Halteres e banco inclinado","peito","ombros",["Banco a 30°, halteres acima do peito, cotovelos levemente flexionados.","Abra em arco até alongar a parte alta do peito.","Retorne apertando o peito."],["Foco na parte alta do peito."],"Descer demais e sobrecarregar a frente do ombro."),
+E("Crossover","pei","Polia dupla","peito","ombros",["Polias na altura dos ombros ou acima. Um pé à frente e leve inclinação do tronco.","Cotovelos levemente flexionados e fixos.","Leve as mãos para a frente do peito em arco e aperte 1 s.","Volte devagar até sentir o peito abrir."],["Tronco estável, só os braços se movem.","Variar a altura da polia muda a ênfase (alta = parte baixa do peito)."],"Puxar com as costas e balançar o tronco."),
+E("Crossover na polia baixa","pei","Polia dupla","peito","ombros",["Polias na parte de baixo. Pegue os cabos e incline levemente o tronco à frente.","Suba as mãos em arco até a altura do queixo, apertando a parte alta do peito.","Desça controlando."],["Boa para a parte superior do peito."],"Subir os ombros junto."),
+E("Flexão de braço","pei","Peso do corpo","peito","ombros,triceps,abdomen",["Mãos um pouco mais largas que os ombros, corpo reto da cabeça aos pés.","Desça até o peito quase tocar o chão, cotovelos a ~45°.","Empurre de volta sem deixar o quadril cair."],["Dificuldade: apoie os joelhos ou as mãos num banco.","Contraia o abdômen e o glúteo."],"Quadril caindo ou subindo demais."),
+// COSTAS
+E("Puxada alta","cos","Polia alta","dorsais","biceps,antebraco,trapezio",["Sente e prenda as coxas no apoio. Pegada um pouco mais larga que os ombros.","Peito para cima e leve inclinação para trás.","Puxe a barra até o alto do peito levando os cotovelos para baixo.","Volte devagar até esticar os braços, sentindo as costas alongarem."],["Pense em puxar com os cotovelos, não com as mãos.","Não deixe os ombros subirem."],"Balançar o tronco e puxar a barra atrás da nuca."),
+E("Barra fixa","cos","Barra","dorsais","biceps,antebraco",["Pegada pronada um pouco mais larga que os ombros, corpo estendido.","Puxe levando o peito em direção à barra e os cotovelos para baixo.","Desça devagar até esticar os braços."],["Sem força ainda? Use a máquina assistida ou elástico.","Contraia o abdômen para não balançar."],"Usar embalo (kipping) e não completar a descida."),
+E("Puxada com pegada neutra","cos","Polia alta","dorsais","biceps,antebraco",["Use a barra em V ou triângulo (palmas se olhando).","Puxe em direção ao peito levando os cotovelos para trás e para baixo.","Volte controlando."],["Pegada mais confortável para ombros e cotovelos."],"Inclinar o tronco demais para trás."),
+E("Puxada unilateral na polia","cos","Polia alta","dorsais","biceps",["Sente com um braço na alça, outro apoiado.","Puxe a alça ao lado do peito, cotovelo para baixo e para trás.","Volte devagar alongando o dorsal."],["Boa para corrigir diferença entre os lados."],"Girar o tronco para ajudar."),
+E("Remada máquina","cos","Máquina","dorsais","trapezio,biceps,ombros",["Ajuste o assento para o peito encostar no apoio.","Pegue as alças com os ombros para baixo.","Puxe com os cotovelos e junte as escápulas no final.","Volte devagar sem soltar o peso."],["Pausa de 1 s no final.","Pegada neutra ou pronada muda um pouco a ênfase."],"Afastar o peito do apoio e usar embalo."),
+E("Remada curvada","cos","Barra ou halteres","dorsais","trapezio,biceps,lombar,posterior",["Joelhos levemente flexionados, tronco inclinado com a coluna neutra.","Barra na frente das coxas, braços estendidos.","Puxe em direção ao umbigo levando os cotovelos para trás.","Desça controlando, mantendo o tronco parado."],["Olhar para o chão, pescoço alinhado.","Se a lombar cansar antes das costas, use uma remada apoiada."],"Subir o tronco a cada repetição."),
+E("Remada baixa na polia","cos","Polia baixa","dorsais","trapezio,biceps",["Sentado, joelhos levemente flexionados, tronco ereto.","Puxe a alça em direção ao abdômen, cotovelos junto ao corpo.","Junte as escápulas e volte devagar."],["Mantenha o peito aberto durante todo o movimento."],"Jogar o tronco para trás e para frente."),
+E("Remada cavalinho","cos","Barra T ou máquina","dorsais","trapezio,biceps,lombar",["Tronco inclinado com a coluna neutra, ou peito apoiado se a máquina tiver apoio.","Puxe a carga em direção ao peito.","Pausa curta e descida controlada."],["Cotovelos próximos do corpo trabalham mais o meio das costas."],"Arredondar a coluna."),
+E("Remada unilateral","cos","Halter e banco","dorsais","trapezio,biceps",["Apoie joelho e mão do mesmo lado no banco, costas retas e paralelas ao chão.","Halter pendurado sob o ombro.","Puxe o halter em direção ao quadril, cotovelo junto ao corpo.","Desça alongando a costa."],["Pense em levar o cotovelo ao teto.","Não gire o tronco."],"Puxar com o ombro e girar o tronco."),
+E("Pulldown (pullover na polia)","cos","Polia alta","dorsais","triceps",["Em pé ou sentado, pegue a barra reta com os braços quase estendidos.","Cotovelos levemente flexionados e fixos.","Leve a barra em arco até as coxas usando o dorsal.","Volte devagar sem dobrar os cotovelos."],["Tronco levemente inclinado à frente.","Foco no alongamento no topo."],"Dobrar os cotovelos e virar uma extensão de tríceps."),
+E("Pullover com halter","cos","Halter e banco","dorsais","peito,triceps",["Deitado de costas no banco, segure um halter com as duas mãos acima do peito.","Leve o halter para trás da cabeça em arco, cotovelos levemente flexionados.","Volte até a posição inicial usando as costas."],["Controle a descida; pare quando sentir alongar."],"Arquear demais a lombar."),
+E("Pullover na máquina","cos","Máquina","dorsais","triceps",["Ajuste o assento e prenda os cotovelos nos apoios.","Leve os cotovelos para baixo e para a frente.","Volte devagar alongando o dorsal."],["Boa opção para isolar o dorsal."],"Usar o impulso do tronco."),
+// OMBROS
+E("Desenvolvimento com halteres","omb","Halteres e banco","ombros","triceps,trapezio",["Sentado com apoio, halteres na altura das orelhas, antebraços verticais.","Empurre para cima até quase estender os braços.","Desça controlando até a altura das orelhas."],["Contraia o abdômen para proteger a lombar.","Não bata os halteres no topo."],"Arquear a lombar e inclinar o tronco para trás."),
+E("Desenvolvimento na máquina","omb","Máquina","ombros","triceps",["Ajuste o assento para as alças ficarem na altura dos ombros.","Empurre para cima sem travar os cotovelos.","Desça devagar."],["Costas bem apoiadas."],"Levantar os ombros em direção às orelhas."),
+E("Desenvolvimento no Smith","omb","Smith","ombros","triceps",["Banco reto ou levemente inclinado, barra na altura do queixo.","Empurre até estender os braços sem travar.","Desça até o queixo."],["Ajuste o banco para a barra passar à frente do rosto."],"Deixar a barra descer atrás da cabeça."),
+E("Arnold press","omb","Halteres","ombros","triceps",["Sentado, halteres à frente do peito com as palmas voltadas para você.","Ao subir, gire os punhos para as palmas ficarem para a frente.","No topo, braços estendidos. Desça fazendo o giro inverso."],["Carga menor que no desenvolvimento comum.","Movimento fluido e controlado."],"Girar rápido e sem controle."),
+E("Elevação lateral","omb","Halteres","ombros","trapezio",["Em pé, halteres ao lado do corpo, cotovelos levemente flexionados.","Suba os braços para os lados até a altura dos ombros.","Pausa curta no topo e desça em 2 a 3 segundos."],["Mínimo de embalo: carga leve vale mais.","Cotovelo levemente à frente do punho, como se derramasse água."],"Subir os ombros e usar o trapézio."),
+E("Elevação lateral na polia","omb","Polia baixa","ombros","trapezio",["De lado para a polia, pegue a alça com a mão mais distante.","Suba o braço em arco até a altura do ombro.","Desça controlando mantendo tensão no cabo."],["Tensão constante durante todo o movimento."],"Balançar o tronco."),
+E("Elevação lateral na máquina","omb","Máquina","ombros","trapezio",["Ajuste o assento e posicione os cotovelos sob os apoios.","Suba os braços lateralmente até a altura dos ombros.","Desça devagar."],["Mantenha os ombros baixos."],"Usar impulso."),
+E("Elevação lateral inclinada","omb","Halter e banco inclinado","ombros","trapezio",["Deite de lado no banco inclinado com o halter na mão de cima.","Suba o braço até a altura do ombro.","Desça controlando."],["Aumenta a tensão no ponto de maior alongamento."],"Girar o corpo para ajudar."),
+E("Crucifixo inverso","omb","Halteres","ombros","dorsais,trapezio",["Incline o tronco à frente com a coluna neutra, halteres pendurados.","Abra os braços para os lados com os cotovelos levemente flexionados.","Suba até a altura dos ombros e desça controlando."],["Foco na parte de trás do ombro (deltoide posterior).","Carga leve."],"Juntar demais as escápulas e usar as costas."),
+E("Peck deck inverso","omb","Máquina","ombros","trapezio",["Sentado de frente para o apoio, braços à frente na altura dos ombros.","Abra os braços para trás em arco.","Volte devagar."],["Cotovelos levemente flexionados."],"Puxar com as costas em vez do ombro."),
+E("Face pull","omb","Polia com corda","ombros","trapezio,dorsais",["Polia na altura do rosto, corda nas duas mãos.","Puxe em direção ao rosto abrindo os cotovelos para os lados.","Segure 1 s e volte devagar."],["Ótimo para a saúde dos ombros e postura."],"Puxar para baixo do queixo em vez de para o rosto."),
+E("Remada alta","omb","Barra ou halteres","ombros","trapezio,biceps",["Barra na frente das coxas, pegada na largura dos ombros.","Suba a barra rente ao corpo até a altura do peito, cotovelos acima dos punhos.","Desça controlando."],["Se incomodar o ombro, suba só até o meio do peito."],"Subir acima da linha do peito."),
+// BÍCEPS
+E("Rosca direta","bic","Barra reta ou W","biceps","antebraco",["Em pé, pegada na largura dos ombros, cotovelos junto ao corpo.","Flexione os cotovelos levando a barra aos ombros.","Aperte o bíceps no alto e desça em 2 a 3 segundos."],["Cotovelos fixos ao lado do corpo.","Barra W alivia os punhos."],"Balançar o tronco para ajudar."),
+E("Rosca com halteres","bic","Halteres","biceps","antebraco",["Em pé ou sentado, halteres ao lado do corpo, palmas para a frente.","Flexione os cotovelos subindo os halteres.","Desça controlando."],["Gire o punho levemente para fora no topo."],"Levantar os ombros."),
+E("Rosca Scott","bic","Banco Scott e barra W","biceps","antebraco",["Braços apoiados no banco, axilas encostadas no topo.","Flexione levando a barra ao queixo.","Desça devagar sem estender totalmente os cotovelos na parte final."],["Foco na parte baixa do bíceps.","Descida controlada protege o tendão."],"Soltar o peso na descida."),
+E("Rosca na polia","bic","Polia baixa","biceps","antebraco",["Em pé, de frente para a polia, barra ou corda na altura da coxa.","Flexione os cotovelos mantendo-os fixos.","Volte devagar."],["Tensão constante no bíceps."],"Afastar os cotovelos do corpo."),
+E("Rosca martelo","bic","Halteres","biceps,antebraco","",["Em pé, halteres ao lado do corpo com pegada neutra (palmas se olhando).","Flexione levando os halteres aos ombros, cotovelos fixos.","Desça em 2 a 3 segundos."],["Trabalha o braquial e o antebraço, dando volume ao braço."],"Balançar o tronco."),
+E("Rosca martelo na corda","bic","Polia baixa com corda","biceps,antebraco","",["Em pé, corda na polia baixa, palmas se olhando.","Flexione os cotovelos levando as mãos aos ombros.","Desça devagar."],["Tensão constante."],"Soltar os cotovelos para a frente."),
+E("Rosca alternada","bic","Halteres","biceps","antebraco",["Em pé, um halter em cada mão.","Suba um braço de cada vez girando a palma para cima.","Desça controlando e alterne."],["Ritmo constante, sem balanço."],"Usar embalo do corpo."),
+E("Rosca inversa","bic","Barra","antebraco,biceps","",["Pegada pronada (palmas para baixo) na largura dos ombros.","Flexione os cotovelos até a altura dos ombros.","Desça devagar."],["Fortalece antebraço e braquiorradial.","Carga menor que a rosca direta."],"Dobrar os punhos."),
+// TRÍCEPS
+E("Tríceps pulley","tri","Polia alta com barra","triceps","antebraco",["Em pé, de frente para a polia, barra na altura do peito.","Cotovelos colados ao corpo.","Estenda os cotovelos empurrando a barra para baixo.","Volte até a altura do peito, controlando."],["Só o antebraço se move.","Aperte o tríceps 1 s embaixo."],"Subir os cotovelos ou inclinar o tronco com o peso."),
+E("Tríceps corda","tri","Polia alta com corda","triceps","antebraco",["Pegue a corda com os cotovelos junto ao corpo.","Estenda os cotovelos e abra a corda para os lados no final.","Volte devagar."],["Abrir a corda aumenta a contração."],"Afastar os cotovelos do corpo."),
+E("Tríceps coice","tri","Halter","triceps","ombros",["Incline o tronco à frente, cotovelo dobrado junto ao corpo.","Estenda o antebraço para trás até o braço ficar reto.","Volte controlando."],["Carga leve e movimento limpo."],"Mexer o braço inteiro."),
+E("Mergulho no banco","tri","Banco","triceps","peito,ombros",["Mãos no banco atrás de você, pernas à frente.","Desça flexionando os cotovelos até ~90°.","Empurre de volta sem travar os cotovelos."],["Mantenha os ombros baixos e longe das orelhas.","Pernas mais dobradas deixam mais fácil."],"Descer demais e machucar os ombros."),
+E("Tríceps francês","tri","Halter ou barra W","triceps","",["Sentado ou em pé, segure o peso acima da cabeça.","Flexione os cotovelos descendo o peso atrás da cabeça, cotovelos apontando para cima.","Estenda de volta sem abrir os cotovelos."],["Boa para a cabeça longa do tríceps.","Controle a descida."],"Abrir os cotovelos para os lados."),
+E("Tríceps francês na polia","tri","Polia com corda","triceps","",["De costas para a polia, corda atrás da cabeça, cotovelos para cima.","Estenda os braços à frente.","Volte devagar."],["Tensão constante no alongamento."],"Mover os ombros."),
+E("Tríceps testa","tri","Barra W e banco","triceps","",["Deitado, barra W com os braços estendidos acima do peito.","Flexione os cotovelos descendo a barra em direção à testa.","Estenda de volta."],["Cotovelos apontados para o teto, sem abrir.","Use um apoio se a carga for alta."],"Deixar os cotovelos abrirem."),
+// QUADRÍCEPS
+E("Agachamento","qua","Barra e rack","quadriceps","gluteos,posterior,lombar,abdomen",["Barra apoiada nas costas, pés na largura dos ombros, pontas levemente para fora.","Inspire, contraia o abdômen e desça empurrando o quadril para trás e os joelhos para fora.","Desça até onde mantém a coluna neutra (coxas paralelas ou mais).","Suba empurrando o chão com os pés."],["Joelhos acompanham a ponta dos pés.","Peso distribuído no meio do pé."],"Joelhos entrando e lombar arredondando (‘butt wink’)."),
+E("Agachamento no Smith","qua","Smith","quadriceps","gluteos",["Pés um pouco à frente da barra, costas apoiadas na barra.","Desça controlando até as coxas ficarem paralelas.","Suba sem travar os joelhos."],["Posição dos pés muda o foco: mais à frente = glúteo."],"Joelhos passando muito da ponta dos pés."),
+E("Agachamento goblet","qua","Halter ou kettlebell","quadriceps","gluteos,abdomen",["Segure o peso junto ao peito.","Desça com o tronco ereto e os cotovelos entre os joelhos.","Suba empurrando o chão."],["Ótimo para aprender o movimento."],"Inclinar o tronco à frente."),
+E("Leg press","qua","Máquina","quadriceps","gluteos,posterior",["Sente com a lombar e o quadril bem apoiados.","Pés na largura dos ombros, na parte média da plataforma.","Desça até os joelhos formarem ~90° sem o quadril sair do banco.","Empurre sem travar os joelhos."],["Pés mais baixos = mais quadríceps; mais altos = mais glúteo.","Controle a descida."],"Travar os joelhos no topo e tirar o quadril do banco."),
+E("Hack machine","qua","Máquina","quadriceps","gluteos",["Costas apoiadas, pés na plataforma na largura dos ombros.","Desça controlando até ~90° ou mais.","Suba sem travar os joelhos."],["Pés mais baixos aumentam o quadríceps."],"Tirar os calcanhares da plataforma."),
+E("Cadeira extensora","qua","Máquina","quadriceps","",["Ajuste o encosto e o apoio das pernas (logo acima dos tornozelos).","Estenda os joelhos até o topo e segure 1 s.","Desça em 2 a 3 segundos."],["Ótima para isolar o quadríceps.","Joelho alinhado com o eixo da máquina."],"Subir com impulso e soltar o peso."),
+E("Sissy squat","qua","Peso do corpo","quadriceps","abdomen",["Em pé, apoiando a mão. Suba nos calcanhares e incline o corpo para trás.","Flexione os joelhos levando-os para a frente enquanto o tronco desce em linha.","Suba contraindo as coxas."],["Avançado: comece com amplitude curta."],"Forçar os joelhos sem preparo."),
+E("Agachamento búlgaro","qua","Halteres e banco","quadriceps","gluteos",["Pé de trás apoiado no banco, pé da frente a um passo grande.","Desça o joelho de trás em direção ao chão.","Suba empurrando o pé da frente."],["Tronco levemente inclinado trabalha mais o glúteo."],"Pé da frente muito perto do banco."),
+E("Afundo","qua","Halteres ou peso do corpo","quadriceps","gluteos",["Em pé, dê um passo largo à frente.","Desça o joelho de trás quase ao chão, tronco ereto.","Empurre o pé da frente e volte."],["Joelho da frente alinhado com o pé.","Passo mais largo = mais glúteo."],"Joelho da frente caindo para dentro."),
+E("Passada caminhando","qua","Halteres","quadriceps","gluteos",["Dê um passo e desça em afundo.","Suba e traga a outra perna para a frente num novo passo.","Alterne caminhando."],["Passos amplos, ritmo controlado."],"Passos curtos e tronco inclinado."),
+E("Step-up","qua","Halteres e caixa","quadriceps","gluteos",["Pé inteiro apoiado na caixa ou banco.","Suba empurrando só pela perna de cima.","Desça controlando."],["Altura da caixa: joelho a ~90°."],"Impulsionar com a perna de baixo."),
+// POSTERIOR / GLÚTEOS
+E("Terra romeno","pos","Barra","posterior,gluteos","lombar,dorsais",["Em pé, barra na frente das coxas, joelhos levemente flexionados.","Empurre o quadril para trás, descendo a barra rente às pernas.","Desça até sentir o posterior alongar, coluna neutra.","Suba contraindo glúteo e posterior."],["A barra desliza pelas coxas e tíbias.","Olhar para a frente ou levemente para baixo."],"Arredondar a coluna e dobrar demais os joelhos."),
+E("Stiff com halteres","pos","Halteres","posterior,gluteos","lombar",["Em pé com halteres à frente das coxas, joelhos levemente flexionados.","Incline o tronco empurrando o quadril para trás.","Volte contraindo glúteo e posterior."],["Quase sem dobrar os joelhos."],"Descer além da flexibilidade e arredondar a lombar."),
+E("Good morning","pos","Barra","posterior,gluteos","lombar",["Barra nas costas como no agachamento, joelhos levemente flexionados.","Incline o tronco à frente empurrando o quadril para trás.","Volte contraindo glúteos."],["Carga leve no início.","Coluna sempre neutra."],"Arredondar as costas."),
+E("Mesa flexora","pos","Máquina","posterior","panturrilha",["Deite de bruços, joelhos na borda do banco, apoio acima dos calcanhares.","Flexione os joelhos levando os calcanhares aos glúteos.","Desça devagar."],["Quadril colado no banco, sem levantar.","Pausa curta no topo."],"Levantar o quadril e usar impulso."),
+E("Cadeira flexora","pos","Máquina","posterior","panturrilha",["Ajuste o encosto para o joelho ficar alinhado com o eixo da máquina.","Flexione os joelhos puxando o apoio para baixo.","Volte devagar."],["Mantenha as costas encostadas."],"Soltar o peso na volta."),
+E("Flexora em pé","pos","Máquina","posterior","",["Em pé, perna apoiada no rolo.","Flexione o joelho levando o calcanhar ao glúteo.","Volte devagar."],["Boa para trabalhar uma perna de cada vez."],"Girar o quadril."),
+E("Flexora com bola","pos","Bola suíça","posterior","gluteos,abdomen",["Deitado de costas com os calcanhares sobre a bola, quadril elevado.","Flexione os joelhos puxando a bola em direção aos glúteos.","Volte estendendo as pernas."],["Mantenha o quadril alto o tempo todo."],"Deixar o quadril cair."),
+E("Hip thrust","pos","Barra e banco","gluteos","posterior,quadriceps",["Costas apoiadas no banco logo abaixo das escápulas, barra sobre o quadril (use almofada).","Pés no chão na largura do quadril, joelhos a ~90° no topo.","Suba empurrando o quadril até alinhar com o tronco.","Aperte os glúteos 1 s e desça controlando."],["Queixo para dentro, olhar para a frente.","Evite arquear a lombar no topo."],"Hiperestender a lombar em vez de usar o glúteo."),
+E("Elevação pélvica no chão","pos","Peso do corpo ou halter","gluteos","posterior",["Deitado no chão com joelhos dobrados e pés apoiados.","Suba o quadril apertando os glúteos.","Desça devagar sem encostar o quadril no chão."],["Pausa de 1 s no topo."],"Empurrar com a lombar."),
+E("Glúteo na polia","pos","Polia baixa com caneleira","gluteos","posterior",["Em pé, tornozelo preso na caneleira, mãos apoiadas.","Leve a perna para trás sem arquear a lombar.","Volte devagar."],["Contraia o glúteo no final."],"Girar o quadril e arquear a lombar."),
+E("Agachamento sumô","pos","Halter","gluteos","adutores,quadriceps",["Pés bem afastados, pontas para fora, halter entre as pernas.","Desça com o tronco ereto e joelhos para fora.","Suba apertando os glúteos."],["Joelhos acompanham as pontas dos pés."],"Joelhos fechando."),
+E("Abdutora","pos","Máquina","gluteos","",["Sente com as costas apoiadas e os joelhos apoiados nas almofadas.","Abra as pernas até onde conseguir controlando.","Volte devagar."],["Tronco levemente à frente trabalha mais o glúteo.","Volta controlada."],"Usar impulso e carga alta demais."),
+E("Abdução na polia","pos","Polia baixa com caneleira","gluteos","",["De lado para a polia, caneleira no tornozelo mais distante.","Abra a perna para o lado em arco.","Volte devagar."],["Tronco estável."],"Inclinar o tronco."),
+E("Abdução com elástico","pos","Elástico","gluteos","",["Elástico acima dos joelhos, em pé ou deitado de lado.","Abra a perna contra a resistência.","Volte devagar."],["Boa para aquecimento e ativação."],"Girar o quadril."),
+E("Glúteo em quatro apoios","pos","Peso do corpo ou caneleira","gluteos","posterior",["Em quatro apoios, coluna neutra.","Estenda uma perna para trás e para cima.","Volte sem encostar o joelho no chão."],["Sem arquear a lombar."],"Girar o quadril."),
+// PANTURRILHA
+E("Panturrilha em pé","pan","Máquina ou Smith","panturrilha","",["Ombros sob os apoios, ponta dos pés na plataforma.","Desça os calcanhares alongando a panturrilha.","Suba o máximo possível e pause 1 s no topo."],["Amplitude completa e movimento lento.","Joelhos quase estendidos."],"Quicar e fazer movimentos curtos."),
+E("Panturrilha sentado","pan","Máquina","panturrilha","",["Sentado com os joelhos a 90° sob o apoio.","Desça os calcanhares alongando.","Suba pausando 1 s no topo."],["Trabalha o sóleo, ótimo para volume."],"Fazer metade do movimento."),
+E("Panturrilha no leg press","pan","Leg press","panturrilha","",["Sentado na máquina, só a ponta dos pés na plataforma.","Empurre estendendo os tornozelos.","Volte alongando sem dobrar os joelhos."],["Joelhos quase estendidos, sem travar."],"Dobrar os joelhos."),
+E("Panturrilha no Smith","pan","Smith e degrau","panturrilha","",["Barra sobre os ombros, ponta dos pés num degrau.","Suba nos dedos apertando a panturrilha.","Desça alongando."],["Tronco ereto."],"Inclinar o corpo."),
+E("Panturrilha unilateral no degrau","pan","Degrau e halter","panturrilha","",["Em pé numa perna, ponta do pé no degrau, apoie a mão.","Desça o calcanhar alongando.","Suba o máximo possível."],["Carga extra com halter na mão do mesmo lado."],"Usar impulso."),
+// ABDÔMEN
+E("Crunch na polia alta","abd","Polia com corda","abdomen","obliquos",["Ajoelhado de frente para a polia, corda junto à cabeça.","Quadril fixo, enrole o tronco levando as costelas em direção à pelve.","Volte controlando."],["Não puxe com os braços.","Expire ao enrolar."],"Mexer o quadril e puxar com os braços."),
+E("Crunch declinado com anilha","abd","Banco declinado e anilha","abdomen","obliquos",["Deitado no banco declinado, anilha junto ao peito.","Suba enrolando a coluna, sem puxar o pescoço.","Desça controlando."],["Movimento curto e firme."],"Subir com impulso."),
+E("Elevação de pernas","abd","Barra ou banco","abdomen","quadriceps",["Pendurado na barra ou deitado no banco, pernas estendidas.","Suba as pernas até o quadril enrolar.","Desça devagar sem balançar."],["Pense em levar o quadril, não só as pernas.","Se ficar fácil, segure uma anilha leve entre os pés."],"Balançar o corpo e usar o embalo."),
+E("Prancha","abd","Peso do corpo","abdomen","ombros,gluteos",["Apoie antebraços e pontas dos pés, corpo reto.","Contraia abdômen e glúteos.","Segure respirando normalmente."],["Comece com 20 a 30 s e aumente.","Cotovelos sob os ombros."],"Deixar o quadril cair ou subir."),
+E("Abdominal no solo","abd","Peso do corpo","abdomen","",["Deitado, joelhos dobrados e pés no chão, mãos junto às orelhas.","Suba enrolando o tronco só até as escápulas saírem do chão.","Volte devagar."],["Olhar para o teto e expirar ao subir."],"Puxar o pescoço com as mãos."),
+E("Abdominal bicicleta","abd","Peso do corpo","abdomen,obliquos","",["Deitado, mãos atrás da cabeça, pernas elevadas.","Leve o cotovelo ao joelho oposto enquanto estende a outra perna.","Alterne de forma controlada."],["Ritmo lento vale mais que rápido."],"Girar só o cotovelo e não o tronco."),
+E("Abdominal infra no solo","abd","Peso do corpo","abdomen","",["Deitado, pernas estendidas, mãos sob o quadril.","Suba as pernas até a vertical.","Desça devagar sem encostar no chão."],["Lombar encostada no chão."],"Arquear a lombar."),
+E("Abdominal remador","abd","Peso do corpo","abdomen","quadriceps",["Deitado com braços e pernas estendidos.","Traga joelhos e tronco ao encontro, abraçando as pernas.","Volte estendendo."],["Controle a volta."],"Usar embalo."),
+// TRAPÉZIO
+E("Encolhimento com halteres","tra","Halteres","trapezio","antebraco",["Em pé com halteres ao lado do corpo.","Suba os ombros em direção às orelhas.","Pausa de 1 s e desça controlando."],["Sem girar os ombros.","Pegada firme, carga que permita pausa."],"Girar os ombros para a frente ou para trás."),
+E("Encolhimento na barra","tra","Barra","trapezio","antebraco",["Pegada na largura dos ombros, barra à frente das coxas.","Suba os ombros em linha reta.","Desça controlando."],["Use tiras se a pegada falhar antes do trapézio."],"Dobrar os cotovelos para ajudar."),
+E("Encolhimento no Smith","tra","Smith","trapezio","antebraco",["Barra à frente das coxas.","Suba os ombros em linha reta.","Pause e desça devagar."],["Boa opção para cargas altas."],"Inclinar o tronco."),
+];
+const LIBALIAS={"Panturrilha":"Panturrilha em pé","Pulldown":"Pulldown (pullover na polia)","Puxada com braço reto na polia":"Pulldown (pullover na polia)","Crucifixo inverso com halteres":"Crucifixo inverso","Leg press com pés baixos":"Leg press","Tríceps coice":"Tríceps coice"};
+const libFind=n=>LIB.find(x=>x.n===(LIBALIAS[n]||n));
+/* ---------- figuras do corpo (SVG original) ---------- */
+const EL=(x,y,rx,ry,r)=>`<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}"${r?` transform="rotate(${r} ${x} ${y})"`:""}/>`;
+const MSH={
+peito:{f:EL(41,58,10,8,0)+EL(59,58,10,8,0)},
+ombros:{f:EL(27,50,7,8,0)+EL(73,50,7,8,0),b:EL(27,50,7,8,0)+EL(73,50,7,8,0)},
+biceps:{f:EL(20,70,5,10,8)+EL(80,70,5,10,-8)},
+triceps:{b:EL(20,70,5,10,8)+EL(80,70,5,10,-8)},
+antebraco:{f:EL(16,96,4.5,12,6)+EL(84,96,4.5,12,-6),b:EL(16,96,4.5,12,6)+EL(84,96,4.5,12,-6)},
+abdomen:{f:`<rect x="43" y="68" width="14" height="36" rx="5"/>`},
+obliquos:{f:EL(37,88,4.5,13,-8)+EL(63,88,4.5,13,8)},
+quadriceps:{f:EL(40,138,8.5,24,3)+EL(60,138,8.5,24,-3)},
+adutores:{f:EL(49,128,3,14,0)+EL(51,128,3,14,0)},
+panturrilha:{f:EL(39,177,5.5,13,0)+EL(61,177,5.5,13,0),b:EL(39,174,6.5,14,0)+EL(61,174,6.5,14,0)},
+trapezio:{b:`<path d="M50 38 L34 48 L42 62 L50 66 L58 62 L66 48Z"/>`},
+dorsais:{b:EL(40,76,9,14,10)+EL(60,76,9,14,-10)},
+lombar:{b:`<rect x="43" y="92" width="14" height="14" rx="5"/>`},
+gluteos:{b:EL(41,115,9,9,0)+EL(59,115,9,9,0)},
+posterior:{b:EL(40,143,8,21,2)+EL(60,143,8,21,-2)}
+};
+function bodyFig(view,prim,sec,w){prim=prim||[];sec=sec||[];
+const sil=`<g fill="#334155"><circle cx="50" cy="20" r="11"/><rect x="45" y="29" width="10" height="9" rx="3"/><path d="M33 40 Q50 34 67 40 L72 52 L78 62 L84 100 L89 110 L81 112 L76 100 L72 70 L66 84 L62 106 L62 192 L53 192 L50 130 L47 192 L38 192 L38 106 L34 84 L28 70 L24 100 L19 112 L11 110 L16 100 L22 62 L28 52Z"/></g>`;
+let g="";const draw=(ms,fill,op)=>ms.forEach(m=>{const s=MSH[m]&&MSH[m][view];if(s)g+=`<g fill="${fill}" fill-opacity="${op}">${s}</g>`});
+draw(Object.keys(MSH).filter(m=>!prim.includes(m)&&!sec.includes(m)),"#475569",.55);draw(sec,"#f59e0b",.85);draw(prim,"#22c55e",1);
+return `<svg viewBox="0 0 100 196" width="${w||90}" role="img" aria-label="${view==="f"?"Vista frontal":"Vista de costas"}">${sil}${g}</svg>`}
+function figView(x){return x.p.every(m=>!MSH[m].f)||(!MSH[x.p[0]].f&&MSH[x.p[0]].b)?"b":"f"}
+/* ---------- aba Exercícios ---------- */
+let lq="",lgrp="",ltab=0,lcur=-1;
+const nrm=s=>String(s).normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
+function planNames(){const s=new Set();Object.values(D).forEach(d=>d.ex.forEach(e=>s.add(e[0])));return s}
+function libList(){const q=nrm(lq).trim(),pl=planNames();
+return LIB.map((x,i)=>({x,i})).filter(({x})=>{if(lgrp&&x.g!==lgrp)return false;if(!q)return true;return nrm(x.n+" "+x.q+" "+x.p.map(m=>MUS[m]).join(" ")+" "+x.s.map(m=>MUS[m]).join(" ")).includes(q)})
+.sort((a,b)=>(pl.has(b.x.n)?1:0)-(pl.has(a.x.n)?1:0)||a.i-b.i)}
+function libGrid(){const pl=planNames(),L=libList();
+if(!L.length)return `<div class="card small">Nenhum exercício encontrado. Tente outro nome ou músculo.</div>`;
+return `<div class="lgrid">`+L.map(({x,i})=>`<button class="lc" onclick="openLib(${i})"><div class="lf">${bodyFig(figView(x),x.p,x.s,64)}${pl.has(x.n)?`<span class="lb">No plano</span>`:""}</div><div class="ln">${esc(x.n)}</div><div class="small">${esc(x.q)} · ${esc(MUS[x.p[0]])}</div></button>`).join("")+`</div>`}
+function exercicios(){
+const ch=[["","Todos"]].concat(GRP.map(a=>[a[0],a[1]]));
+return `<div class="card"><h3>📚 Biblioteca de exercícios</h3><div class="small">Toque num exercício para ver como fazer, músculos trabalhados, dicas e erros comuns.</div>
+<input class="in" id="lsrch" type="search" placeholder="Buscar por nome ou músculo…" value="${esc(lq)}" oninput="lSearch(this.value)" style="margin:10px 0">
+<div class="lchips">${ch.map(([k,n])=>{const g=GRP.find(a=>a[0]===k);const fg=g?LIB.find(x=>x.g===k):null;return `<button class="lch ${lgrp===k?"on":""}" onclick="lFilter('${k}')">${fg?bodyFig(figView(fg),fg.p,[],26):`<span style="font-size:20px">🏋️</span>`}<span>${n}</span></button>`}).join("")}</div></div><div id="lgrid">${libGrid()}</div>`}
+function lSearch(v){lq=v.slice(0,40);document.getElementById("lgrid").innerHTML=libGrid()}
+function lFilter(k){lgrp=lgrp===k?"":k;render()}
+function openLib(i){lcur=i;ltab=0;libRender();document.getElementById("modal").classList.add("on")}
+function lTab(n){ltab=n;libRender()}
+function libRender(){const x=LIB[lcur],pl=planNames().has(x.n),m=document.getElementById("modal");
+const TB=["Como fazer","Dicas e erros","Músculos"];
+let body;
+if(ltab===0)body=`<ol class="lol">${x.st.map(t=>`<li>${esc(t)}</li>`).join("")}</ol>`;
+else if(ltab===1)body=`<div class="small" style="color:var(--ac);font-weight:700;margin-bottom:4px">Dicas</div><ul class="lol">${x.dc.map(t=>`<li>${esc(t)}</li>`).join("")}</ul><div class="small" style="color:var(--red);font-weight:700;margin:10px 0 4px">Erro comum</div><div>${esc(x.er)}</div>`;
+else body=`<div class="small" style="margin-bottom:6px"><span class="dot" style="background:var(--ac)"></span> Principal <span class="dot" style="background:var(--warn);margin-left:10px"></span> Secundário</div><ul class="lol">${x.p.map(k=>`<li><b>${esc(MUS[k])}</b> (principal)</li>`).join("")}${x.s.map(k=>`<li>${esc(MUS[k])} (secundário)</li>`).join("")}</ul>`;
+const wd=WDN[new Date().getDay()],dd=days.includes(wd)?wd:(days.includes(cur)?cur:days[0]);
+m.innerHTML=`<div class="sheet"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div><div class="sh-t" style="font-size:18px;margin:0">${esc(x.n)}</div><div class="small">${esc(x.q)}${pl?` · <b style="color:var(--ac)">No seu plano</b>`:""}</div></div><button class="tab" onclick="closeM()" aria-label="Fechar">✕</button></div>
+<div class="lfig">${bodyFig("f",x.p,x.s,96)}${bodyFig("b",x.p,x.s,96)}</div>
+<div class="vt">${TB.map((t,k)=>`<button class="tab ${ltab===k?"on":""}" style="flex:1;padding:8px 4px;font-size:13px" onclick="lTab(${k})">${t}</button>`).join("")}</div>
+<div style="min-height:120px">${body}</div>
+<div class="btns"><a class="btn" href="${V(x.n)}" target="_blank" rel="noopener">▶ Ver execução</a><button class="btn t" onclick="openMediaN(${lcur})">📷 Minha execução</button></div>
+<div style="display:flex;gap:8px;align-items:center"><select class="in" id="lxd" style="flex:1">${days.map(d=>`<option ${d===dd?"selected":""}>${esc(d)}</option>`).join("")}</select><button class="btn t" style="flex:0 0 auto" onclick="libExtra(${lcur})">＋ Registrar como extra</button></div></div>`}
+function libExtra(i){const x=LIB[i],d=document.getElementById("lxd").value;if(!days.includes(d))return;const k=S.wk+"|"+d;S.xtra[k]=S.xtra[k]||[];S.xtra[k].push({n:x.n.slice(0,40),s:[{c:"",r:""},{c:"",r:""},{c:"",r:""}]});save();closeM();go(d);setTimeout(()=>alert("“"+x.n+"” adicionado em Exercícios extras de "+d+"."),50)}
+async function openMediaN(i){const x=LIB[i];mex=x.n;mtip=x.dc[0]||"";msel=[];mrc="";const m=document.getElementById("modal");m.innerHTML=`<div class="sheet"><div class="sh-t">Carregando…</div></div>`;await mRender()}
+function infoEx(n){const k=LIB.indexOf(libFind(n));if(k>=0)openLib(k)}
+
+const TABL={Exercícios:"📚 Exercícios",Hoje:"🏠 Hoje",Medidas:"📏 Medidas",Fotos:"📸 Fotos",Resumo:"🏆 Resumo",Dieta:"🍽 Dieta",Perfil:"📋 Guia"};
+function tabs(){const all=["Hoje",...days,"Medidas","Fotos","Exercícios","Resumo","Dieta","Perfil"];const nav=document.getElementById("tabs");
 nav.innerHTML=all.map(d=>`<button class="tab ${d==cur?"on":""}" onclick="go('${d}')">${TABL[d]||d.slice(0,3)}</button>`).join("");
 const on=nav.querySelector(".tab.on");if(on)nav.scrollLeft=on.offsetLeft-nav.clientWidth/2+on.clientWidth/2}
-function go(d){cur=d;S.tab=d;save();render();scrollTo(0,0)}
+function go(d){pClean();cur=d;S.tab=d;save();render();scrollTo(0,0)}
 const wkey=()=>S.wk+"|"+cur;
 const goalOf=()=>{S.wgoal=S.wgoal||{};return S.wgoal[cur]||3000};
 const fl=ml=>String(+(ml/1000).toFixed(2)).replace(".",",");
@@ -576,6 +789,8 @@ function render(){tabs();const m=document.getElementById("main");
 if(cur=="Hoje"){m.innerHTML=hoje();return}
 if(cur=="Perfil"){m.innerHTML=perfil();return}
 if(cur=="Medidas"){m.innerHTML=medidas();return}
+if(cur=="Fotos"){m.innerHTML=fotos();pLoad();return}
+if(cur=="Exercícios"){m.innerHTML=exercicios();return}
 if(cur=="Resumo"){m.innerHTML=resumo();return}
 if(cur=="Dieta"){m.innerHTML=dieta();return}
 const REC={};records().forEach(r=>REC[r.nm]=r);
@@ -606,7 +821,7 @@ ${sw?`<div class="small">Substitui: ${esc(D[cur].ex[i][0])}</div>`:""}
 <div class="sug">${sugest(e,k)}</div>
 ${stallTip(i)}
 ${pr?`<div class="small" style="margin:-4px 0 10px">🏆 Recorde: ${brn(pr.kg)} kg${pr.reps?" × "+pr.reps:""} (sem ${pr.wk})${pr.isNew?" · <b style=\"color:var(--ac)\">novo!</b>":""}</div>`:""}
-<div class="btns"><a class="btn" href="${V(e[0])}" target="_blank" rel="noopener">▶ Ver execução</a><button class="btn t" onclick="startT(${e[4]})">⏱ ${fmt(e[4])}</button><button class="btn t" style="flex:0 0 auto;padding:11px 14px" onclick="openSwap(${i})" aria-label="Trocar exercício">⇄</button><button class="btn t" style="flex:0 0 auto;padding:11px 14px" onclick="openMedia(${i})" aria-label="Foto ou vídeo da execução">📷</button></div>
+<div class="btns"><a class="btn" href="${V(e[0])}" target="_blank" rel="noopener">▶ Ver execução</a><button class="btn t" onclick="startT(${e[4]})">⏱ ${fmt(e[4])}</button><button class="btn t" style="flex:0 0 auto;padding:11px 14px" onclick="openSwap(${i})" aria-label="Trocar exercício">⇄</button><button class="btn t" style="flex:0 0 auto;padding:11px 14px" onclick="openMedia(${i})" aria-label="Foto ou vídeo da execução">📷</button>${libFind(e[0])?`<button class="btn t" style="flex:0 0 auto;padding:11px 14px" onclick="infoEx(${JSON.stringify(e[0]).replace(/"/g,"&quot;")})" aria-label="Detalhes do exercício">ℹ️</button>`:""}</div>
 ${grid}
 ${hist?`<div class="hist"><b>Histórico</b><br>${hist}</div>`:""}
 </div>`}).join("")+cardio(cur)+xtra(cur)+dnote(cur)}
@@ -681,6 +896,8 @@ const G=(S.wgoal||{})[wd]||3000,v=(S.water||{})[wk+"|"+wd]||0,pc=Math.min(100,Ma
 o+=`<div class="card" style="border:1px solid #0ea5e955"><h3>💧 Água</h3><div style="display:flex;align-items:baseline;gap:8px"><span style="font-size:26px;font-weight:800;color:#38bdf8">${fl(v)} L</span><span class="small">meta ${fl(G)} L${v>=G?" ✓ batida!":""}</span></div><div class="prog" style="margin:8px 0"><i style="width:${pc}%;background:#38bdf8"></i></div><div class="btns"><button class="btn t" onclick="addWd('${wd}',250)">+250 ml</button><button class="btn t" onclick="addWd('${wd}',500)">+500 ml</button><button class="btn t" onclick="addWd('${wd}',-250)">−250</button></div></div>`;
 const t=sumEat(null,todayStr()),pl=planAll(),nm=Object.keys(S.eat[todayStr()]||{}).map(x=>+x.split("|")[0]),nref=new Set([...nm,...(S.eatx[todayStr()]||[]).map(x=>x.mi)]).size;
 o+=`<div class="card"><h3>🍽 Dieta de hoje</h3><div class="drow"><span>Calorias</span><span><b>${brn(t.k,0)}</b> / ${brn(num(S.diet.goal.k)||Math.round(pl.k),0)} kcal</span></div><div class="prog" style="margin:2px 0 8px"><i style="width:${Math.min(100,Math.round(t.k/(num(S.diet.goal.k)||pl.k)*100))}%"></i></div><div class="drow"><span>Proteína</span><span><b>${brn(t.p,0)}</b> / ${brn(num(S.diet.goal.p)||Math.round(pl.p),0)} g</span></div><p class="small" style="margin:8px 0">${nref} de ${DP.length} refeições registradas.</p><button class="btn t" style="width:100%" onclick="goDiet()">Registrar refeições</button></div>`;
+const lp=S.lastPhoto||"",lim30=ymd(new Date(Date.now()-30*864e5));
+if(!lp||lp<lim30)o+=`<div class="card"><h3>📸 Foto mensal</h3><p class="small">${lp?"Últimas fotos em "+fmtD(lp)+".":"Você ainda não tem fotos de progresso."} Tire frente, lado e costas com a mesma luz e distância para comparar a evolução.</p><button class="btn t" style="width:100%" onclick="go('Fotos')">Tirar fotos</button></div>`;
 const ult=S.meas.length?S.meas[S.meas.length-1].d:"",lim=ymd(new Date(Date.now()-7*864e5));
 if(!ult||ult<lim)o+=`<div class="card"><h3>📏 Hora de medir</h3><p class="small">${ult?"Última medida em "+fmtD(ult)+".":"Nenhuma medida ainda."} Meça peso, cintura e abdômen uma vez por semana, no mesmo horário.</p><button class="btn t" style="width:100%" onclick="go('Medidas')">Registrar medidas</button></div>`;
 return o}
