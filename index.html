@@ -86,15 +86,15 @@ ul{padding-left:18px;margin:6px 0}li{margin:4px 0}
 table{width:100%;border-collapse:collapse;font-size:13px}td,th{border-bottom:1px solid var(--bd);padding:6px 4px;text-align:left;vertical-align:top}th{color:var(--mut);font-weight:600}
 .prog{height:6px;background:var(--card2);border-radius:9px;overflow:hidden;margin:4px 0 12px}
 .prog i{display:block;height:100%;background:var(--ac);width:0;transition:width .3s}
-.lgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.sheet>*{flex-shrink:0}.lf{min-height:120px;align-items:center}.lgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
 .lc{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:10px;text-align:left;color:var(--tx);font-family:inherit}
-.lf{position:relative;display:flex;justify-content:center;background:var(--card2);border-radius:10px;padding:6px;margin-bottom:6px}
+.lf{position:relative;display:flex;justify-content:center;background:linear-gradient(160deg,#27354d,#18233a);border-radius:12px;padding:8px 6px 4px;margin-bottom:8px}.lmus{display:flex;flex-wrap:wrap;gap:6px}.mp{font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px}.mp.p{background:#22c55e22;color:#4ade80;border:1px solid #22c55e}.mp.s{background:#f59e0b22;color:#fbbf24;border:1px solid #f59e0b}
 .lb{position:absolute;top:4px;left:4px;background:var(--ac);color:#06210f;font-size:10px;font-weight:800;border-radius:6px;padding:2px 6px}
 .ln{font-weight:700;font-size:14px;line-height:1.25;margin-bottom:2px}
 .lchips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
 .lch{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px;background:var(--card2);border:1px solid var(--bd);color:var(--tx);border-radius:12px;padding:6px 10px;font-size:11px;min-width:66px;font-family:inherit}
 .lch.on{border-color:var(--ac);color:var(--ac)}
-.lfig{display:flex;justify-content:center;gap:16px;background:var(--card2);border-radius:12px;padding:8px}
+.lfig{display:flex;justify-content:center;gap:24px;background:linear-gradient(160deg,#27354d,#18233a);border-radius:14px;padding:10px}
 .lol{margin:0;padding-left:20px}.lol li{margin-bottom:6px}
 .dot{display:inline-block;width:10px;height:10px;border-radius:50%}
 </style>
@@ -190,7 +190,7 @@ const min=Math.min(...p.reps);
 if(min<lo)return`Abaixo da faixa (${min} reps com ${p.kg} kg): mantenha ou reduza para <b>${r5(p.kg-inc)} kg</b> e foque na técnica.`;
 return`➡️ Mantenha <b>${p.kg} kg</b> e tente +1 rep nas séries abaixo de ${hi}.`}
 function r5(x){return Math.round(x*2)/2}
-const VER="14";
+const VER="14.1";
 const DEF_H=["07:00","09:30","12:30","15:30","19:30","22:00"];
 const FRUTA=["Maçã 1 un (150g)","Ameixa 4 un","Mamão 3 pedaços (50g cada)","Uva 15 un (120g)","Banana prata 1 pequena (90g)","Manga 1 un (120g)","Bergamota 1 un","Pera 1 un (120g)","Melão 5 fatias (50g)","Laranja 1 un","Morango 40 un (5g)","Melancia 1 fatia","Abacaxi 10 fatias finas"];
 const PAO=["Pão francês 1 un","Tapioca de goma 3 col. sopa","Rap10 integral 1 un","Pão integral 2 fatias","Pão de forma 2 fatias"];
@@ -705,30 +705,40 @@ E("Encolhimento no Smith","tra","Smith","trapezio","antebraco",["Barra à frente
 const LIBALIAS={"Panturrilha":"Panturrilha em pé","Pulldown":"Pulldown (pullover na polia)","Puxada com braço reto na polia":"Pulldown (pullover na polia)","Crucifixo inverso com halteres":"Crucifixo inverso","Leg press com pés baixos":"Leg press","Tríceps coice":"Tríceps coice"};
 const libFind=n=>LIB.find(x=>x.n===(LIBALIAS[n]||n));
 /* ---------- figuras do corpo (SVG original) ---------- */
-const EL=(x,y,rx,ry,r)=>`<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}"${r?` transform="rotate(${r} ${x} ${y})"`:""}/>`;
+const PE=(x,y,rx,ry,r)=>`<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}"${r?` transform="rotate(${r} ${x} ${y})"`:""}/>`;
+/* cada músculo: [lado direito (espelhado), centro] por vista */
 const MSH={
-peito:{f:EL(41,58,10,8,0)+EL(59,58,10,8,0)},
-ombros:{f:EL(27,50,7,8,0)+EL(73,50,7,8,0),b:EL(27,50,7,8,0)+EL(73,50,7,8,0)},
-biceps:{f:EL(20,70,5,10,8)+EL(80,70,5,10,-8)},
-triceps:{b:EL(20,70,5,10,8)+EL(80,70,5,10,-8)},
-antebraco:{f:EL(16,96,4.5,12,6)+EL(84,96,4.5,12,-6),b:EL(16,96,4.5,12,6)+EL(84,96,4.5,12,-6)},
-abdomen:{f:`<rect x="43" y="68" width="14" height="36" rx="5"/>`},
-obliquos:{f:EL(37,88,4.5,13,-8)+EL(63,88,4.5,13,8)},
-quadriceps:{f:EL(40,138,8.5,24,3)+EL(60,138,8.5,24,-3)},
-adutores:{f:EL(49,128,3,14,0)+EL(51,128,3,14,0)},
-panturrilha:{f:EL(39,177,5.5,13,0)+EL(61,177,5.5,13,0),b:EL(39,174,6.5,14,0)+EL(61,174,6.5,14,0)},
-trapezio:{b:`<path d="M50 38 L34 48 L42 62 L50 66 L58 62 L66 48Z"/>`},
-dorsais:{b:EL(40,76,9,14,10)+EL(60,76,9,14,-10)},
-lombar:{b:`<rect x="43" y="92" width="14" height="14" rx="5"/>`},
-gluteos:{b:EL(41,115,9,9,0)+EL(59,115,9,9,0)},
-posterior:{b:EL(40,143,8,21,2)+EL(60,143,8,21,-2)}
+peito:{f:[`<path d="M61 51 Q74 46 87 57 Q86 73 75 77 Q65 77 61 70Z"/>`,""]},
+ombros:{f:[PE(91,58,7,9,-18),""],b:[PE(91,58,7,9,-18),""]},
+biceps:{f:[PE(95,81,5,11,-14),""]},
+triceps:{b:[PE(95,81,5.5,12,-14),""]},
+antebraco:{f:[PE(101,113,4.5,15,-8),""],b:[PE(101,113,4.5,15,-8),""]},
+abdomen:{f:["",`<g><rect x="52" y="79" width="16" height="38" rx="6"/></g>`]},
+obliquos:{f:[`<path d="M70 82 Q80 88 81 110 Q76 114 72 113 Q71 96 70 82Z"/>`,""]},
+quadriceps:{f:[`<path d="M64 132 Q80 128 85 144 Q85 166 79 182 Q71 184 67 178 Q64 154 64 132Z"/>`,""]},
+adutores:{f:[`<path d="M61 130 L65 134 Q67 150 66 166 L61 150Z"/>`,""]},
+panturrilha:{f:[PE(75,208,6,16,4),""],b:[PE(75,206,6.5,17,4),""]},
+trapezio:{b:["",`<path d="M60 40 L74 44 Q83 52 79 61 L60 86 L41 61 Q37 52 46 44Z"/>`]},
+dorsais:{b:[`<path d="M62 86 L79 63 Q88 68 85 86 Q81 100 70 102 L62 100Z"/>`,""]},
+lombar:{b:["",`<path d="M51 100 Q60 95 69 100 L67 117 L53 117Z"/>`]},
+gluteos:{b:[`<path d="M60 113 Q77 108 85 121 Q85 137 71 140 Q62 138 60 131Z"/>`,""]},
+posterior:{b:[`<path d="M62 142 Q80 140 84 152 Q83 174 79 186 Q71 188 67 182 Q64 162 62 142Z"/>`,""]}
 };
-function bodyFig(view,prim,sec,w){prim=prim||[];sec=sec||[];
-const sil=`<g fill="#334155"><circle cx="50" cy="20" r="11"/><rect x="45" y="29" width="10" height="9" rx="3"/><path d="M33 40 Q50 34 67 40 L72 52 L78 62 L84 100 L89 110 L81 112 L76 100 L72 70 L66 84 L62 106 L62 192 L53 192 L50 130 L47 192 L38 192 L38 106 L34 84 L28 70 L24 100 L19 112 L11 110 L16 100 L22 62 L28 52Z"/></g>`;
-let g="";const draw=(ms,fill,op)=>ms.forEach(m=>{const s=MSH[m]&&MSH[m][view];if(s)g+=`<g fill="${fill}" fill-opacity="${op}">${s}</g>`});
-draw(Object.keys(MSH).filter(m=>!prim.includes(m)&&!sec.includes(m)),"#475569",.55);draw(sec,"#f59e0b",.85);draw(prim,"#22c55e",1);
-return `<svg viewBox="0 0 100 196" width="${w||90}" role="img" aria-label="${view==="f"?"Vista frontal":"Vista de costas"}">${sil}${g}</svg>`}
-function figView(x){return x.p.every(m=>!MSH[m].f)||(!MSH[x.p[0]].f&&MSH[x.p[0]].b)?"b":"f"}
+const SIL=`<circle cx="60" cy="19" r="13"/><rect x="54" y="29" width="12" height="13" rx="4"/>`;
+const SILH=`<path d="M60 40 L74 43 Q85 46 87 57 L85 84 Q81 98 83 112 L85 128 Q88 150 85 172 L81 196 Q82 214 79 230 L70 235 L68 214 Q66 192 66 172 Q64 150 62 136 L60 132Z"/><path d="M88 53 Q99 55 101 68 L104 100 L107 128 Q108 137 102 139 L97 137 L93 110 L89 92 Q86 76 86 62Z"/>`;
+const mir=s=>`<g transform="translate(120 0) scale(-1 1)">${s}</g>`;
+function bodyFig(view,prim,sec,w,crop){prim=prim||[];sec=sec||[];
+const vb=crop==="u"?"0 4 120 140":crop==="l"?"0 100 120 140":"0 0 120 240";
+const [vw,vh]=vb.split(" ").slice(2).map(Number);
+let g="";const paint=(ms,fill,st,op,sw)=>ms.forEach(m=>{const s=MSH[m]&&MSH[m][view];if(!s)return;const [h,c]=s;g+=`<g fill="${fill}" fill-opacity="${op}" stroke="${st}" stroke-width="${sw}" stroke-linejoin="round">${h?h+mir(h):""}${c}</g>`});
+const all=Object.keys(MSH);
+paint(all.filter(m=>!prim.includes(m)&&!sec.includes(m)),"#3a4a66","#26344d",.9,.8);
+paint(sec,"#f59e0b","#fcd34d",.9,1);
+paint(prim,"#22c55e","#bbf7d0",1,1.2);
+let ab="";if(view==="f"&&prim.includes("abdomen")){ab=`<g stroke="#14532d" stroke-width="1.2" fill="none"><path d="M60 79 V117 M52 90 H68 M52 102 H68"/></g>`}
+return `<svg viewBox="${vb}" width="${w||90}" height="${Math.round((w||90)*vh/vw)}" role="img" aria-label="${view==="f"?"Vista frontal":"Vista de costas"}"><g fill="#1b2638" stroke="#3b4b66" stroke-width="1" stroke-linejoin="round">${SIL}${SILH}${mir(SILH)}</g>${g}${ab}</svg>`}
+const cropOf=x=>["qua","pos","pan"].includes(x.g)?"l":"u";
+function figView(x){if(/inverso|Face pull/.test(x.n))return "b";const m=x.p[0];return MSH[m].f?"f":"b"}
 /* ---------- aba Exercícios ---------- */
 let lq="",lgrp="",ltab=0,lcur=-1;
 const nrm=s=>String(s).normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
@@ -738,12 +748,12 @@ return LIB.map((x,i)=>({x,i})).filter(({x})=>{if(lgrp&&x.g!==lgrp)return false;i
 .sort((a,b)=>(pl.has(b.x.n)?1:0)-(pl.has(a.x.n)?1:0)||a.i-b.i)}
 function libGrid(){const pl=planNames(),L=libList();
 if(!L.length)return `<div class="card small">Nenhum exercício encontrado. Tente outro nome ou músculo.</div>`;
-return `<div class="lgrid">`+L.map(({x,i})=>`<button class="lc" onclick="openLib(${i})"><div class="lf">${bodyFig(figView(x),x.p,x.s,64)}${pl.has(x.n)?`<span class="lb">No plano</span>`:""}</div><div class="ln">${esc(x.n)}</div><div class="small">${esc(x.q)} · ${esc(MUS[x.p[0]])}</div></button>`).join("")+`</div>`}
+return `<div class="lgrid">`+L.map(({x,i})=>`<button class="lc" onclick="openLib(${i})"><div class="lf">${bodyFig(figView(x),x.p,x.s,120,cropOf(x))}${pl.has(x.n)?`<span class="lb">No plano</span>`:""}</div><div class="ln">${esc(x.n)}</div><div class="small">${esc(x.q)} · ${esc(MUS[x.p[0]])}</div></button>`).join("")+`</div>`}
 function exercicios(){
 const ch=[["","Todos"]].concat(GRP.map(a=>[a[0],a[1]]));
 return `<div class="card"><h3>📚 Biblioteca de exercícios</h3><div class="small">Toque num exercício para ver como fazer, músculos trabalhados, dicas e erros comuns.</div>
 <input class="in" id="lsrch" type="search" placeholder="Buscar por nome ou músculo…" value="${esc(lq)}" oninput="lSearch(this.value)" style="margin:10px 0">
-<div class="lchips">${ch.map(([k,n])=>{const g=GRP.find(a=>a[0]===k);const fg=g?LIB.find(x=>x.g===k):null;return `<button class="lch ${lgrp===k?"on":""}" onclick="lFilter('${k}')">${fg?bodyFig(figView(fg),fg.p,[],26):`<span style="font-size:20px">🏋️</span>`}<span>${n}</span></button>`}).join("")}</div></div><div id="lgrid">${libGrid()}</div>`}
+<div class="lchips">${ch.map(([k,n])=>{const g=GRP.find(a=>a[0]===k);const fg=g?LIB.find(x=>x.g===k):null;return `<button class="lch ${lgrp===k?"on":""}" onclick="lFilter('${k}')">${fg?bodyFig(figView(fg),fg.p,[],38,cropOf(fg)):`<span style="font-size:20px">🏋️</span>`}<span>${n}</span></button>`}).join("")}</div></div><div id="lgrid">${libGrid()}</div>`}
 function lSearch(v){lq=v.slice(0,40);document.getElementById("lgrid").innerHTML=libGrid()}
 function lFilter(k){lgrp=lgrp===k?"":k;render()}
 function openLib(i){lcur=i;ltab=0;libRender();document.getElementById("modal").classList.add("on")}
@@ -756,7 +766,7 @@ else if(ltab===1)body=`<div class="small" style="color:var(--ac);font-weight:700
 else body=`<div class="small" style="margin-bottom:6px"><span class="dot" style="background:var(--ac)"></span> Principal <span class="dot" style="background:var(--warn);margin-left:10px"></span> Secundário</div><ul class="lol">${x.p.map(k=>`<li><b>${esc(MUS[k])}</b> (principal)</li>`).join("")}${x.s.map(k=>`<li>${esc(MUS[k])} (secundário)</li>`).join("")}</ul>`;
 const wd=WDN[new Date().getDay()],dd=days.includes(wd)?wd:(days.includes(cur)?cur:days[0]);
 m.innerHTML=`<div class="sheet"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div><div class="sh-t" style="font-size:18px;margin:0">${esc(x.n)}</div><div class="small">${esc(x.q)}${pl?` · <b style="color:var(--ac)">No seu plano</b>`:""}</div></div><button class="tab" onclick="closeM()" aria-label="Fechar">✕</button></div>
-<div class="lfig">${bodyFig("f",x.p,x.s,96)}${bodyFig("b",x.p,x.s,96)}</div>
+<div class="lfig"><div>${bodyFig("f",x.p,x.s,100)}<div class="small" style="text-align:center">Frente</div></div><div>${bodyFig("b",x.p,x.s,100)}<div class="small" style="text-align:center">Costas</div></div></div><div class="lmus">${x.p.map(k=>`<span class="mp p">${esc(MUS[k])}</span>`).join("")}${x.s.map(k=>`<span class="mp s">${esc(MUS[k])}</span>`).join("")}</div>
 <div class="vt">${TB.map((t,k)=>`<button class="tab ${ltab===k?"on":""}" style="flex:1;padding:8px 4px;font-size:13px" onclick="lTab(${k})">${t}</button>`).join("")}</div>
 <div style="min-height:120px">${body}</div>
 <div class="btns"><a class="btn" href="${V(x.n)}" target="_blank" rel="noopener">▶ Ver execução</a><button class="btn t" onclick="openMediaN(${lcur})">📷 Minha execução</button></div>
